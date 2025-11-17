@@ -18,9 +18,9 @@ import java.util.UUID;
 public class Hub extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID hub_id;
+    private UUID hubId;
 
-    private String hub_name;
+    private String hubName;
 
     @Embedded
     private Address address;
