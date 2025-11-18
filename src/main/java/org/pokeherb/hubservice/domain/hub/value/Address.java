@@ -5,7 +5,6 @@ import lombok.*;
 
 @Embeddable
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
     // 시/도
