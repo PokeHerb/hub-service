@@ -1,4 +1,4 @@
-package org.pokeherb.hubservice.domain.routing;
+package org.pokeherb.hubservice.domain.routing.value;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

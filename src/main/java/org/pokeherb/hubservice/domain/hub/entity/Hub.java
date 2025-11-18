@@ -1,7 +1,11 @@
-package org.pokeherb.hubservice.domain.hub;
+package org.pokeherb.hubservice.domain.hub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.pokeherb.hubservice.domain.hub.value.Address;
+import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
+import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hub.value.Coordinate;
 import org.pokeherb.hubservice.global.domain.Auditable;
 
 import java.util.List;
@@ -31,6 +35,7 @@ public class Hub extends Auditable {
 
     /**
      * 허브 생성은 마스터 관리자만 가능
+     * TODO : 허브가 생성되면 허브 간 이동 경로 정보도 생성되어야 함
      * */
     @Builder
     public Hub(String hubName, String sido, String sigungu, String eupmyeon, String dong,
@@ -48,13 +53,13 @@ public class Hub extends Auditable {
                 .building_no(building_no)
                 .details(details)
                 .build();
-        setCoordinate(address, converter);
+        setCoordinate(converter);
     }
 
     /**
      * String 주소를 위도, 경도로 변환하여 저장
      * */
-    private void setCoordinate(Address address, AddressToCoordinateConverter converter) {
+    private void setCoordinate(AddressToCoordinateConverter converter) {
         List<Double> coordinates = converter.convert(address.toString());
         this.coordinate = Coordinate.builder()
                 .latitude(coordinates.get(0))
@@ -72,6 +77,7 @@ public class Hub extends Auditable {
 
     /**
      * 허브 주소 수정은 마스터 관리자만 가능
+     * TODO: 허브 주소가 수정되면 관련된 허브의 이동 경로 정보도 수정되어야 함
      * */
     public void changeAddress(String sido, String sigungu, String eupmyeon, String dong,
                               String ri, String street, String building_no, String details,
@@ -87,12 +93,13 @@ public class Hub extends Auditable {
                 .building_no(building_no)
                 .details(details)
                 .build();
-        setCoordinate(address, converter);
+        setCoordinate(converter);
     }
 
     /**
      * 허브 삭제는 soft delete로 구현
      * 허브 삭제는 마스터 관리자만 가능
+     * TODO: 허브가 삭제되면 해당 허브와 연관된 이동 정보도 모두 비활성화
      * */
     public void deleteHub(String username, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();

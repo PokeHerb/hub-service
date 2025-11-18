@@ -1,8 +1,10 @@
-package org.pokeherb.hubservice.domain.routing;
+package org.pokeherb.hubservice.domain.routing.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.pokeherb.hubservice.domain.hub.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.routing.service.TravelInfoCalculator;
+import org.pokeherb.hubservice.domain.routing.value.TravelSegmentInfo;
 import org.pokeherb.hubservice.global.domain.Auditable;
 
 import java.util.List;

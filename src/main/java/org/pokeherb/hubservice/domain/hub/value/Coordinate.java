@@ -1,4 +1,4 @@
-package org.pokeherb.hubservice.domain.hub;
+package org.pokeherb.hubservice.domain.hub.value;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;
