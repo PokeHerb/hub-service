@@ -1,4 +1,4 @@
-package org.pokeherb.hubservice.domain.routing.service;
+package org.pokeherb.hubservice.domain.hubroute.service;
 
 import java.util.List;
 import java.util.UUID;
