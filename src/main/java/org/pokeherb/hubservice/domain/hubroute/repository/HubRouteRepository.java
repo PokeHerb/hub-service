@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface HubRouteRepository extends JpaRepository<HubRoute, Long> {
     List<HubRoute> findByStartHubIdOrEndHubId(Long startHubId, Long endHubId);
     Optional<HubRoute> findByStartHubIdAndEndHubId(Long startHubId, Long endHubId);
+    List<HubRoute> findAllByDeletedAtIsNull();
 }
