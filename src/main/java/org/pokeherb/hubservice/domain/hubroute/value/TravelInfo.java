@@ -9,13 +9,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelInfo {
     // 소요시간
-    private Double travelTimeMin;
+    private Double duration;
     // 이동거리
     private Double distance;
 
     @Builder
-    public TravelInfo(Double travelTimeMin, Double distance) {
-        this.travelTimeMin = travelTimeMin;
+    public TravelInfo(Double duration, Double distance) {
+        this.duration = duration;
         this.distance = distance;
     }
 }
