@@ -8,7 +8,7 @@ public interface HubCommandService {
     // 허브 생성
     HubResponse createHub(HubCreationRequest request);
     // 허브 수정
-    HubResponse modifyHub(HubModificationRequest request);
+    HubResponse modifyHub(Long hubId, HubModificationRequest request);
     // 허브 삭제
     void deleteHub(Long hubId);
 }
