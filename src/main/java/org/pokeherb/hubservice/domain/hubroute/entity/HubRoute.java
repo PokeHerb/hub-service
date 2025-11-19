@@ -52,7 +52,7 @@ public class HubRoute extends Auditable {
     private void setTravelInfo(UUID startHubId, UUID endHubId, TravelInfoCalculator calculator) {
         List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .travelTimeMin(infos.get(0))
+                .duration(infos.get(0))
                 .distance(infos.get(1))
                 .build();
     }
@@ -65,7 +65,7 @@ public class HubRoute extends Auditable {
         checkAccessHub.checkAccess();
         List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .travelTimeMin(infos.get(0))
+                .duration(infos.get(0))
                 .distance(infos.get(1))
                 .build();
     }
