@@ -1,0 +1,13 @@
+package org.pokeherb.hubservice.application.hub.query;
+
+import org.pokeherb.hubservice.application.hub.dto.HubResponse;
+
+import java.util.List;
+
+public interface HubQueryService {
+    // 허브 목록 조회
+    List<HubResponse> getHubList();
+    // 단일 허브 조회
+    HubResponse getHub(Long hubId);
+    // TODO : 허브 검색
+}

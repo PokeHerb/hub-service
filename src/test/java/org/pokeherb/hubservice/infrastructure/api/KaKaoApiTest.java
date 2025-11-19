@@ -43,7 +43,7 @@ public class KaKaoApiTest {
                 .sido("서울특별시")
                 .sigungu("송파구")
                 .street("송파대로")
-                .building_no("55")
+                .buildingNo("55")
                 .checkAccessHub(checkAccessHub)
                 .converter(addressConverter)
                 .build();
@@ -52,7 +52,7 @@ public class KaKaoApiTest {
                 .sido("경기도")
                 .sigungu("고양시 덕양구")
                 .street("권율대로")
-                .building_no("570")
+                .buildingNo("570")
                 .checkAccessHub(checkAccessHub)
                 .converter(addressConverter)
                 .build();
