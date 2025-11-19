@@ -22,7 +22,8 @@ public class PgroutingFinalRouteFactory implements FinalRouteFactory {
                             start_hub_id AS source,
                             end_hub_id AS target,
                             duration AS cost
-                    FROM p_hub_route',
+                    FROM p_hub_route
+                    WHERE deleted_at IS NULL',
                     ?, ?,
                     directed := true
                 ) AS route
