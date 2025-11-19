@@ -70,7 +70,7 @@ public class HubCommandServiceImpl implements HubCommandService {
                 hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
             });
         }
-        return HubResponse.from(hub);
+        return HubResponse.from(hubRepository.save(hub));
     }
 
     @Override

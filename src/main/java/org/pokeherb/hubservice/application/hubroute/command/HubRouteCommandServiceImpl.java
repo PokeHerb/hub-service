@@ -1,0 +1,48 @@
+package org.pokeherb.hubservice.application.hubroute.command;
+
+import lombok.RequiredArgsConstructor;
+import org.pokeherb.hubservice.application.hubroute.dto.HubRouteCreationRequest;
+import org.pokeherb.hubservice.application.hubroute.dto.HubRouteResponse;
+import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hubroute.entity.HubRoute;
+import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
+import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteRepository;
+import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class HubRouteCommandServiceImpl implements HubRouteCommandService {
+
+    private final HubRouteRepository hubRouteRepository;
+    private final CheckAccessHub checkAccessHub;
+    private final TravelInfoCalculator travelInfoCalculator;
+
+    @Override
+    public HubRouteResponse createHubRoute(HubRouteCreationRequest request) {
+        HubRoute hubRoute = hubRouteRepository.save(HubRoute.builder()
+                .startHubId(request.startHubId())
+                .endHubId(request.endHubId())
+                .calculator(travelInfoCalculator)
+                .checkAccessHub(checkAccessHub)
+                .build());
+        return HubRouteResponse.from(hubRoute);
+    }
+
+    @Override
+    public HubRouteResponse updateHubRoute(Long startHubId, Long endHubId) {
+        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
+        hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
+        return HubRouteResponse.from(hubRouteRepository.save(hubRoute));
+    }
+
+    @Override
+    public void deleteHubRoute(Long startHubId, Long endHubId) {
+        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
+        // TODO : 현재 로그인한 사용자 username 가져오기
+        //hubRoute.deleteHubRoute(username, checkAccessHub);
+    }
+}
