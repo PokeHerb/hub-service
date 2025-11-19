@@ -11,9 +11,7 @@ import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,7 +52,8 @@ public class DataInitializer implements CommandLineRunner {
         hubRepository.saveAll(hubs);
 
         // 허브 이름으로 조회
-        Map<String, Hub> hubMap = hubs.stream().collect(Collectors.toMap(Hub::getHubName, h -> h));
+        Map<String, Hub> hubMap = hubs.stream()
+                .collect(Collectors.toMap(Hub::getHubName, h -> h));
 
         List<HubRoute> routes = new ArrayList<>();
 
@@ -66,14 +65,27 @@ public class DataInitializer implements CommandLineRunner {
                 "경상북도 센터", List.of("경기남부 센터", "대구광역시 센터")
         );
 
-        // HubRoute 생성 (양방향)
+        // 이미 생성된 연결을 체크할 Set
+        Set<String> addedRoutes = new HashSet<>();
+
         for (Map.Entry<String, List<String>> entry : connections.entrySet()) {
             Hub start = hubMap.get(entry.getKey());
+            if (start == null) continue;
+
             for (String endName : entry.getValue()) {
                 Hub end = hubMap.get(endName);
-                if (start != null && end != null) {
+                if (end == null) continue;
+
+                // 중복 체크: "start->end"와 "end->start" 모두 포함
+                String routeKey1 = start.getHubName() + "->" + end.getHubName();
+                String routeKey2 = end.getHubName() + "->" + start.getHubName();
+
+                if (!addedRoutes.contains(routeKey1) && !addedRoutes.contains(routeKey2)) {
                     routes.add(createHubRoute(start, end));
                     routes.add(createHubRoute(end, start)); // 양방향
+
+                    addedRoutes.add(routeKey1);
+                    addedRoutes.add(routeKey2);
                 }
             }
         }
