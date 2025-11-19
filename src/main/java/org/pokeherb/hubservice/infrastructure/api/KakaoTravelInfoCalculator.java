@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.pokeherb.hubservice.domain.hub.entity.Hub;
 import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
 import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.domain.hub.value.Coordinate;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -34,7 +32,7 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
     private final HubRepository hubRepository;
 
     @Override
-    public List<Double> calculateTravelInfo(UUID startHubId, UUID endHubId) {
+    public List<Double> calculateTravelInfo(Long startHubId, Long endHubId) {
         Coordinate startCoordinate = hubRepository.findByHubId(startHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
         Coordinate endCoordinate = hubRepository.findByHubId(endHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
 

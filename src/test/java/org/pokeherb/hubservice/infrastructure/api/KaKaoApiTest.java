@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @SpringBootTest
@@ -35,8 +34,8 @@ public class KaKaoApiTest {
     @Autowired
     AddressToCoordinateConverter addressConverter;
 
-    private UUID startHubId;
-    private UUID endHubId;
+    private Long startHubId;
+    private Long endHubId;
 
     @BeforeEach
     void setup() {
