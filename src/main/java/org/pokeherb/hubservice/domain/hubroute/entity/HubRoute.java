@@ -8,7 +8,6 @@ import org.pokeherb.hubservice.domain.hubroute.value.TravelInfo;
 import org.pokeherb.hubservice.global.domain.Auditable;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 1. 허브 간 이동 정보는 모든 사용자가 조회 가능
@@ -24,12 +23,12 @@ import java.util.UUID;
 @ToString
 public class HubRoute extends Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID routingId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long hubRouteId;
 
-    private UUID startHubId;
+    private Long startHubId;
 
-    private UUID endHubId;
+    private Long endHubId;
 
     @Embedded
     private TravelInfo travelInfo;
@@ -39,7 +38,7 @@ public class HubRoute extends Auditable {
      * 허브가 생성되면 시스템 내부적으로 생성
      * */
     @Builder
-    public HubRoute(UUID startHubId, UUID endHubId, TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
+    public HubRoute(Long startHubId, Long endHubId, TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
         this.startHubId = startHubId;
         this.endHubId = endHubId;
@@ -49,7 +48,7 @@ public class HubRoute extends Auditable {
     /**
      * 출발 허브와 목적지 허브 간의 이동거리와 소요시간 구하기
      * */
-    private void setTravelInfo(UUID startHubId, UUID endHubId, TravelInfoCalculator calculator) {
+    private void setTravelInfo(Long startHubId, Long endHubId, TravelInfoCalculator calculator) {
         List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
                 .duration(infos.get(0))

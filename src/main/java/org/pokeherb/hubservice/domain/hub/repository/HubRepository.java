@@ -5,9 +5,11 @@ import org.pokeherb.hubservice.domain.hub.entity.Hub;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface HubRepository extends JpaRepository<Hub, UUID> {
+public interface HubRepository extends JpaRepository<Hub, Long> {
     @SQLRestriction("deleted_at is null")
-    Optional<Hub> findByHubId(UUID hubId);
+    Optional<Hub> findByHubId(Long hubId);
+
+    @SQLRestriction("deleted_at is null")
+    Optional<Hub> findByHubName(String hubName);
 }
