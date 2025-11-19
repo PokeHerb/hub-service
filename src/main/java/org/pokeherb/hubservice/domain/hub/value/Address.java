@@ -20,19 +20,19 @@ public class Address {
     // 도로명 주소
     private String street;
     // 건물 번호
-    private String building_no;
+    private String buildingNo;
     // 나머지 상세 주소
     private String details;
 
     @Builder
-    protected Address(String sido, String sigungu, String eupmyeon, String dong, String ri, String street, String building_no, String details) {
+    protected Address(String sido, String sigungu, String eupmyeon, String dong, String ri, String street, String buildingNo, String details) {
         this.sido = sido;
         this.sigungu = sigungu;
         this.eupmyeon = eupmyeon;
         this.dong = dong;
         this.ri = ri;
         this.street = street;
-        this.building_no = building_no;
+        this.buildingNo = buildingNo;
         this.details = details;
     }
 
@@ -60,8 +60,8 @@ public class Address {
         if (street != null) {
             address += street + " ";
         }
-        if (building_no != null) {
-            address += building_no + " ";
+        if (buildingNo != null) {
+            address += buildingNo + " ";
         }
         if (details != null) {
             address += details;

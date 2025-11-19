@@ -37,7 +37,7 @@ public class Hub extends Auditable {
      * */
     @Builder
     public Hub(String hubName, String sido, String sigungu, String eupmyeon, String dong,
-               String ri, String street, String building_no, String details,
+               String ri, String street, String buildingNo, String details,
                AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
         this.hubName = hubName;
@@ -48,7 +48,7 @@ public class Hub extends Auditable {
                 .dong(dong)
                 .ri(ri)
                 .street(street)
-                .building_no(building_no)
+                .buildingNo(buildingNo)
                 .details(details)
                 .build();
         setCoordinate(converter);
@@ -77,7 +77,7 @@ public class Hub extends Auditable {
      * 허브 주소 수정은 마스터 관리자만 가능
      * */
     public void changeAddress(String sido, String sigungu, String eupmyeon, String dong,
-                              String ri, String street, String building_no, String details,
+                              String ri, String street, String buildingNo, String details,
                               AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
         this.address = Address.builder()
@@ -87,7 +87,7 @@ public class Hub extends Auditable {
                 .dong(dong)
                 .ri(ri)
                 .street(street)
-                .building_no(building_no)
+                .buildingNo(buildingNo)
                 .details(details)
                 .build();
         setCoordinate(converter);
