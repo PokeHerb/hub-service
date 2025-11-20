@@ -11,8 +11,7 @@ public interface HubRepository extends JpaRepository<Hub, Long> {
     @SQLRestriction("deleted_at is null")
     Optional<Hub> findByHubId(Long hubId);
 
-    @SQLRestriction("deleted_at is null")
-    Optional<Hub> findByHubName(String hubName);
+    List<Hub> findByHubIdInAndDeletedAtIsNull(List<Long> hubIds);
 
     List<Hub> findAllByDeletedAtIsNull();
 }
