@@ -9,5 +9,6 @@ public interface HubQueryService {
     List<HubResponse> getHubList();
     // 단일 허브 조회
     HubResponse getHub(Long hubId);
-    // TODO : 허브 검색
+    // 허브 검색
+    List<HubResponse> searchHubList(String keyword);
 }

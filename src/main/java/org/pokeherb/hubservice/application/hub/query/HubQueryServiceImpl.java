@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 import org.pokeherb.hubservice.domain.hub.entity.Hub;
 import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
+import org.pokeherb.hubservice.domain.hub.repository.HubDetailsRepository;
 import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.List;
 public class HubQueryServiceImpl implements HubQueryService {
 
     private final HubRepository hubRepository;
+    private final HubDetailsRepository hubDetailsRepository;
 
     @Override
     public List<HubResponse> getHubList() {
@@ -26,5 +28,11 @@ public class HubQueryServiceImpl implements HubQueryService {
     public HubResponse getHub(Long hubId) {
         Hub hub = hubRepository.findByHubId(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         return HubResponse.from(hub);
+    }
+
+    @Override
+    public List<HubResponse> searchHubList(String keyword) {
+        List<Hub> hubs = hubDetailsRepository.searchHubByKeyword(keyword);
+        return hubs.stream().map(HubResponse::from).toList();
     }
 }
