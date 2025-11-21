@@ -13,6 +13,7 @@ import org.pokeherb.hubservice.domain.hubroute.entity.HubRoute;
 import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteRepository;
 import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.pokeherb.hubservice.infrastructure.security.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class HubCommandServiceImpl implements HubCommandService {
     private final CheckAccessHub checkAccessHub;
     private final AddressToCoordinateConverter addressToCoordinateConverter;
     private final TravelInfoCalculator travelInfoCalculator;
+    private final SecurityUtils securityUtils;
 
     @Override
     public HubResponse createHub(HubCreationRequest request) {
@@ -76,14 +78,16 @@ public class HubCommandServiceImpl implements HubCommandService {
     @Override
     public void deleteHub(Long hubId) {
         Hub hub = hubRepository.findByHubId(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
-        // TODO : 현재 로그인한 사용자 username 가져오기
-//        // 허브 삭제
-//        hub.deleteHub(userName, checkAccessHub);
-//
-//        // 삭제된 허브가 포함된 허브 간 이동 정보도 삭제 (비활성화)
-//        List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(), hub.getHubId());
-//        hubRoutes.forEach(hubRoute -> {
-//            hubRoute.deleteHubRoute(userName, checkAccessHub);
-//        });
+
+        // 현재 로그인한 사용자 username 가져오기
+        String username = securityUtils.getCurrentUsername();
+        // 허브 삭제
+        hub.deleteHub(username, checkAccessHub);
+
+        // 삭제된 허브가 포함된 허브 간 이동 정보도 삭제 (비활성화)
+        List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(), hub.getHubId());
+        hubRoutes.forEach(hubRoute -> {
+            hubRoute.deleteHubRoute(username, checkAccessHub);
+        });
     }
 }

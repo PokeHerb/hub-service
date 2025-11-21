@@ -1,12 +1,21 @@
 package org.pokeherb.hubservice.infrastructure.security;
 
+import lombok.RequiredArgsConstructor;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.global.infrastructure.error.GeneralErrorCode;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SecurityCheckAccessHub implements CheckAccessHub {
+
+    private final SecurityUtils securityUtils;
+
     @Override
     public void checkAccess() {
-        // TODO: 현재 로그인 유저의 권한 (ROLE)이 마스터 관리자인지 확인
+        if (!securityUtils.isPermitted("MASTER")) {
+            throw new CustomException(GeneralErrorCode.FORBIDDEN_403);
+        }
     }
 }
