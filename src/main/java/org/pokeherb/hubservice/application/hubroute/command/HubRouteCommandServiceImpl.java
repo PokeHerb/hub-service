@@ -9,6 +9,7 @@ import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
 import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteRepository;
 import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.pokeherb.hubservice.infrastructure.security.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
     private final HubRouteRepository hubRouteRepository;
     private final CheckAccessHub checkAccessHub;
     private final TravelInfoCalculator travelInfoCalculator;
+    private final SecurityUtils securityUtils;
 
     @Override
     public HubRouteResponse createHubRoute(HubRouteCreationRequest request) {
@@ -42,7 +44,8 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
     @Override
     public void deleteHubRoute(Long startHubId, Long endHubId) {
         HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
-        // TODO : 현재 로그인한 사용자 username 가져오기
-        //hubRoute.deleteHubRoute(username, checkAccessHub);
+        // 현재 로그인한 사용자 username 가져오기
+        String username = securityUtils.getCurrentUsername();
+        hubRoute.deleteHubRoute(username, checkAccessHub);
     }
 }
