@@ -7,6 +7,7 @@ import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
 import org.pokeherb.hubservice.domain.hub.repository.HubDetailsRepository;
 import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class HubQueryServiceImpl implements HubQueryService {
     }
 
     @Override
+    @Cacheable(value = "hubCache", key = "#hubId")
     public HubResponse getHub(Long hubId) {
         Hub hub = hubRepository.findByHubId(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         return HubResponse.from(hub);

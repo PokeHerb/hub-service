@@ -7,6 +7,7 @@ import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
 import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteDetailsRepository;
 import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteRepository;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +26,9 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
     }
 
     @Override
+    @Cacheable(
+            value = "hubRouteCache",
+            key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId)")
     public HubRouteResponse getHubRoute(Long startHubId, Long endHubId) {
         HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
         return HubRouteResponse.from(hubRoute);
