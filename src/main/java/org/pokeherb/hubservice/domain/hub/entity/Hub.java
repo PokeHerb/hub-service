@@ -2,11 +2,13 @@ package org.pokeherb.hubservice.domain.hub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
 import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
 import org.pokeherb.hubservice.domain.hub.value.Address;
 import org.pokeherb.hubservice.domain.hub.value.Coordinate;
 import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 
 import java.util.Map;
 
@@ -41,6 +43,9 @@ public class Hub extends Auditable {
                String ri, String street, String buildingNo, String details,
                AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
+        if (hubName == null || hubName.isEmpty()) {
+            throw new CustomException(HubErrorCode.INVALID_HUB_NAME);
+        }
         this.hubName = hubName;
         this.address = Address.builder()
                 .sido(sido)

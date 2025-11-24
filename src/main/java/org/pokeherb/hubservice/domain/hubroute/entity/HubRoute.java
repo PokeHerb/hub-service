@@ -3,9 +3,11 @@ package org.pokeherb.hubservice.domain.hubroute.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
 import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.domain.hubroute.value.TravelInfo;
 import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 
 import java.util.Map;
 
@@ -40,6 +42,9 @@ public class HubRoute extends Auditable {
     @Builder
     public HubRoute(Long startHubId, Long endHubId, TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
+        if (startHubId == null  || endHubId == null) {
+            throw new CustomException(HubRouteErrorCode.INVALID_HUB_ID);
+        }
         this.startHubId = startHubId;
         this.endHubId = endHubId;
         setTravelInfo(startHubId, endHubId, calculator);
