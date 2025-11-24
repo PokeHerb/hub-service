@@ -9,10 +9,9 @@ import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 import org.pokeherb.hubservice.application.hub.query.HubQueryService;
 import org.pokeherb.hubservice.global.infrastructure.CustomResponse;
 import org.pokeherb.hubservice.global.infrastructure.success.GeneralSuccessCode;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,8 +52,8 @@ public class HubController {
     }
 
     @GetMapping("/search")
-    public CustomResponse<List<HubResponse>> searchHub(@RequestParam("keyword") String keyword) {
-        List<HubResponse> hubResponses = hubQueryService.searchHubList(keyword);
+    public CustomResponse<Page<HubResponse>> searchHub(@RequestParam("keyword") String keyword, Pageable pageable) {
+        Page<HubResponse> hubResponses = hubQueryService.searchHubList(keyword, pageable);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubResponses);
     }
 }
