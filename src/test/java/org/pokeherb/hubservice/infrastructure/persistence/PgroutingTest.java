@@ -20,7 +20,7 @@ public class PgroutingTest {
         Long startHubId = 1L; // 실제 DB에 존재하는 시작 hub ID
         Long endHubId = 4L;   // 실제 DB에 존재하는 도착 hub ID
 
-        List<Long> route = finalRouteFactory.getRouteSequence(startHubId, endHubId);
+        List<Long> route = finalRouteFactory.getRouteSequence(startHubId, endHubId, "duration");
 
         System.out.println("Route sequence: " + route);
     }
