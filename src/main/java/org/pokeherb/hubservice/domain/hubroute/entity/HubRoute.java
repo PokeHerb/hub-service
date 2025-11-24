@@ -7,7 +7,7 @@ import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.domain.hubroute.value.TravelInfo;
 import org.pokeherb.hubservice.global.domain.Auditable;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * 1. 허브 간 이동 정보는 모든 사용자가 조회 가능
@@ -49,10 +49,10 @@ public class HubRoute extends Auditable {
      * 출발 허브와 목적지 허브 간의 이동거리와 소요시간 구하기
      * */
     private void setTravelInfo(Long startHubId, Long endHubId, TravelInfoCalculator calculator) {
-        List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .duration(infos.get(0))
-                .distance(infos.get(1))
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
                 .build();
     }
 
@@ -62,10 +62,10 @@ public class HubRoute extends Auditable {
      * */
     public void changeTravelInfo(TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
-        List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .duration(infos.get(0))
-                .distance(infos.get(1))
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
                 .build();
     }
 
