@@ -3,11 +3,13 @@ package org.pokeherb.hubservice.domain.hubroute.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
 import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.domain.hubroute.value.TravelInfo;
 import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * 1. 허브 간 이동 정보는 모든 사용자가 조회 가능
@@ -16,7 +18,10 @@ import java.util.List;
  * 4. 소요시간, 이동거리는 경로 탐색 앱을 활용해 미리 조회 및 저장
  * */
 @Entity
-@Table(name = "p_hub_route")
+@Table(
+        name = "p_hub_route",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"start_hub_id", "end_hub_id"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Access(AccessType.FIELD)
@@ -40,6 +45,9 @@ public class HubRoute extends Auditable {
     @Builder
     public HubRoute(Long startHubId, Long endHubId, TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
+        if (startHubId == null  || endHubId == null) {
+            throw new CustomException(HubRouteErrorCode.INVALID_HUB_ID);
+        }
         this.startHubId = startHubId;
         this.endHubId = endHubId;
         setTravelInfo(startHubId, endHubId, calculator);
@@ -49,10 +57,10 @@ public class HubRoute extends Auditable {
      * 출발 허브와 목적지 허브 간의 이동거리와 소요시간 구하기
      * */
     private void setTravelInfo(Long startHubId, Long endHubId, TravelInfoCalculator calculator) {
-        List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .duration(infos.get(0))
-                .distance(infos.get(1))
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
                 .build();
     }
 
@@ -62,10 +70,10 @@ public class HubRoute extends Auditable {
      * */
     public void changeTravelInfo(TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
-        List<Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
         this.travelInfo = TravelInfo.builder()
-                .duration(infos.get(0))
-                .distance(infos.get(1))
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
                 .build();
     }
 

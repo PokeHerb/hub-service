@@ -25,11 +25,11 @@ public class FinalHubRouteQueryServiceImpl implements FinalHubRouteQueryService 
     @Override
     @Cacheable(
             value = "finalRouteCache",
-            key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId)"
+            key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId) + '::' + T(String).valueOf(#cost)"
     )
-    public List<HubResponse> getFinalHubRoute(Long startHubId, Long endHubId) {
-        List<Long> routeSequence = finalRouteFactory.getRouteSequence(startHubId, endHubId);
-        String routeKey = "finalRouteCache::" + startHubId + "::" + endHubId;
+    public List<HubResponse> getFinalHubRoute(Long startHubId, Long endHubId, String cost) {
+        List<Long> routeSequence = finalRouteFactory.getRouteSequence(startHubId, endHubId, cost);
+        String routeKey = "finalRouteCache::" + startHubId + "::" + endHubId + "::" + cost;
 
         // 최종 경로 캐시 인덱스 생성
         cacheService.putFinalRoute(routeSequence, routeKey);

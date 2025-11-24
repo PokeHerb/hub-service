@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.pokeherb.hubservice.application.cache.CacheService;
 import org.pokeherb.hubservice.application.hubroute.dto.HubRouteCreationRequest;
 import org.pokeherb.hubservice.application.hubroute.dto.HubRouteResponse;
+import org.pokeherb.hubservice.domain.hub.entity.Hub;
+import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
+import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
 import org.pokeherb.hubservice.domain.hubroute.entity.HubRoute;
 import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HubRouteCommandServiceImpl implements HubRouteCommandService {
 
     private final HubRouteRepository hubRouteRepository;
+    private final HubRepository hubRepository;
     private final CheckAccessHub checkAccessHub;
     private final TravelInfoCalculator travelInfoCalculator;
     private final SecurityUtils securityUtils;
@@ -31,9 +35,11 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
             value = "hubRouteCache",
             key = "T(String).valueOf(#result.startHubId) + '::' + T(String).valueOf(#result.endHubId)")
     public HubRouteResponse createHubRoute(HubRouteCreationRequest request) {
+        Hub startHub = hubRepository.findByHubIdAndDeletedAtIsNull(request.startHubId()).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
+        Hub endHub = hubRepository.findByHubIdAndDeletedAtIsNull(request.endHubId()).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         HubRoute hubRoute = hubRouteRepository.save(HubRoute.builder()
-                .startHubId(request.startHubId())
-                .endHubId(request.endHubId())
+                .startHubId(startHub.getHubId())
+                .endHubId(endHub.getHubId())
                 .calculator(travelInfoCalculator)
                 .checkAccessHub(checkAccessHub)
                 .build());

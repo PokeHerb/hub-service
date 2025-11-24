@@ -30,6 +30,8 @@ public class LoginFilter extends GenericFilterBean {
     private static final String HEADER_ROLES = "X-User-Roles";
     private static final String HEADER_EMAIL = "X-User-Email";
     private static final String HEADER_USER_NAME = "X-User-Name";
+    private static final String HEADER_HUB_ID = "X-Hub-Id";
+    private static final String HEADER_VENDOR_ID = "X-Vendor-Id";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -43,6 +45,8 @@ public class LoginFilter extends GenericFilterBean {
         String roles = request.getHeader(HEADER_ROLES);
         String email = request.getHeader(HEADER_EMAIL);
         String name =  request.getHeader(HEADER_USER_NAME);
+        String hubId = request.getHeader(HEADER_HUB_ID);
+        String vendorId = request.getHeader(HEADER_VENDOR_ID);
 
         name = name == null ? null : URLDecoder.decode(name, StandardCharsets.UTF_8);
 
@@ -56,6 +60,8 @@ public class LoginFilter extends GenericFilterBean {
                 .email(email)
                 .name(name)
                 .roles(roles)
+                .hubId(Long.parseLong(hubId))
+                .vendorId(UUID.fromString(vendorId))
                 .build();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

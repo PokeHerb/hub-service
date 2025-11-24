@@ -2,13 +2,16 @@ package org.pokeherb.hubservice.domain.hub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
 import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
 import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
 import org.pokeherb.hubservice.domain.hub.value.Address;
 import org.pokeherb.hubservice.domain.hub.value.Coordinate;
 import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 
-import java.util.List;
+import java.util.Map;
+
 /**
  * 1. 모든 사용자가 조회 가능
  * 2. 생성, 수정, 삭제는 마스터 관리자만 가능
@@ -40,6 +43,9 @@ public class Hub extends Auditable {
                String ri, String street, String buildingNo, String details,
                AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
         checkAccessHub.checkAccess();
+        if (hubName == null || hubName.isEmpty()) {
+            throw new CustomException(HubErrorCode.INVALID_HUB_NAME);
+        }
         this.hubName = hubName;
         this.address = Address.builder()
                 .sido(sido)
@@ -58,10 +64,10 @@ public class Hub extends Auditable {
      * String 주소를 위도, 경도로 변환하여 저장
      * */
     private void setCoordinate(AddressToCoordinateConverter converter) {
-        List<Double> coordinates = converter.convert(address.toString());
+        Map<String, Double> coordinates = converter.convert(address.toString());
         this.coordinate = Coordinate.builder()
-                .latitude(coordinates.get(0))
-                .longitude(coordinates.get(1))
+                .latitude(coordinates.get("latitude"))
+                .longitude(coordinates.get("longitude"))
                 .build();
     }
 

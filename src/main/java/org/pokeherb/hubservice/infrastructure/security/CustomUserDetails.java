@@ -22,14 +22,18 @@ public class CustomUserDetails implements UserDetails {
     private final String name;
     private final String email;
     private final String roles;
+    private final Long hubId;
+    private final UUID vendorId;
 
     @Builder
-    public CustomUserDetails(UUID userId, String username, String name, String email, String roles) {
+    public CustomUserDetails(UUID userId, String username, String name, String email, String roles, Long hubId, UUID vendorId) {
         this.userId = userId;
         this.username = username;
         this.name = name;
         this.email = email;
         this.roles = roles;
+        this.hubId = hubId;
+        this.vendorId = vendorId;
     }
 
     @Override

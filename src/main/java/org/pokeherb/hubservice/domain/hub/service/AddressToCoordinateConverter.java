@@ -1,7 +1,7 @@
 package org.pokeherb.hubservice.domain.hub.service;
 
-import java.util.List;
+import java.util.Map;
 
 public interface AddressToCoordinateConverter {
-    List<Double> convert(String address);
+    Map<String, Double> convert(String address);
 }

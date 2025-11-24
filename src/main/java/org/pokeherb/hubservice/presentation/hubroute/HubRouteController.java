@@ -26,8 +26,8 @@ public class HubRouteController {
     private final FinalHubRouteQueryService finalHubRouteQueryService;
 
     @GetMapping("/final/{startHubId}/{endHubId}")
-    public CustomResponse<List<HubResponse>> getFinalHubRouteSequence(@PathVariable Long startHubId, @PathVariable Long endHubId) {
-        List<HubResponse> routeSequence = finalHubRouteQueryService.getFinalHubRoute(startHubId, endHubId);
+    public CustomResponse<List<HubResponse>> getFinalHubRouteSequence(@PathVariable Long startHubId, @PathVariable Long endHubId, @RequestParam("cost") String cost) {
+        List<HubResponse> routeSequence = finalHubRouteQueryService.getFinalHubRoute(startHubId, endHubId, cost);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, routeSequence);
     }
 

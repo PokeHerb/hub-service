@@ -1,7 +1,7 @@
 package org.pokeherb.hubservice.domain.hubroute.service;
 
-import java.util.List;
+import java.util.Map;
 
 public interface TravelInfoCalculator {
-    List<Double> calculateTravelInfo(Long startHubId, Long endHubId);
+    Map<String, Double> calculateTravelInfo(Long startHubId, Long endHubId);
 }
