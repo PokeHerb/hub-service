@@ -33,8 +33,8 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
 
     @Override
     public List<Double> calculateTravelInfo(Long startHubId, Long endHubId) {
-        Coordinate startCoordinate = hubRepository.findByHubId(startHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
-        Coordinate endCoordinate = hubRepository.findByHubId(endHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
+        Coordinate startCoordinate = hubRepository.findByHubIdAndDeletedAtIsNull(startHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
+        Coordinate endCoordinate = hubRepository.findByHubIdAndDeletedAtIsNull(endHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
 
         RestClient client = RestClient
                 .builder()

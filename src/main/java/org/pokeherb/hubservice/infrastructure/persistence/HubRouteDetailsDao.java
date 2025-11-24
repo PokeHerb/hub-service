@@ -8,6 +8,9 @@ import org.pokeherb.hubservice.domain.hub.entity.QHub;
 import org.pokeherb.hubservice.domain.hubroute.entity.HubRoute;
 import org.pokeherb.hubservice.domain.hubroute.entity.QHubRoute;
 import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteDetailsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,20 +22,33 @@ public class HubRouteDetailsDao implements HubRouteDetailsRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<HubRoute> searchHubRouteByKeyword(String keyword) {
+    public Page<HubRoute> searchHubRouteByKeyword(String keyword, Pageable pageable) {
         QHubRoute hubRoute = QHubRoute.hubRoute;
-        QHub startHub =  new QHub("startHub");
+        QHub startHub = new QHub("startHub");
         QHub endHub = new QHub("endHub");
-        return jpaQueryFactory.selectFrom(hubRoute)
+
+        // content 쿼리
+        List<HubRoute> hubRouteList = jpaQueryFactory.selectFrom(hubRoute)
                 .leftJoin(startHub).on(startHub.hubId.eq(hubRoute.startHubId))
                 .leftJoin(endHub).on(endHub.hubId.eq(hubRoute.endHubId))
                 .where(
-                        containsKeyword(startHub, endHub, keyword)
+                        containsKeyword(hubRoute, startHub, endHub, keyword)
                 )
                 .fetch();
+
+        // count 쿼리
+        Long totalCount = jpaQueryFactory.select(hubRoute.count()).from(hubRoute)
+                .leftJoin(startHub).on(startHub.hubId.eq(hubRoute.startHubId))
+                .leftJoin(endHub).on(endHub.hubId.eq(hubRoute.endHubId))
+                .where(containsKeyword(hubRoute, startHub, endHub, keyword))
+                .fetchOne();
+
+        // totalCount가 null일 수 있으므로 객체로 받아 정수로 변환
+        long total = totalCount != null ? totalCount : 0L;
+        return new PageImpl<>(hubRouteList, pageable, total);
     }
 
-    private BooleanBuilder containsKeyword(QHub startHub, QHub endHub, String keyword) {
+    private BooleanBuilder containsKeyword(QHubRoute hubRoute, QHub startHub, QHub endHub, String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return null;
         }
@@ -57,15 +73,18 @@ public class HubRouteDetailsDao implements HubRouteDetailsRepository {
                 endHub.address.street
         };
 
-        BooleanBuilder builder = new BooleanBuilder();
-
+        BooleanBuilder keywordBuilder = new BooleanBuilder();
         for (StringExpression f : startFields) {
-            builder.or(f.containsIgnoreCase(keyword));
+            keywordBuilder.or(f.containsIgnoreCase(keyword));
         }
 
         for (StringExpression f : endFields) {
-            builder.or(f.containsIgnoreCase(keyword));
+            keywordBuilder.or(f.containsIgnoreCase(keyword));
         }
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(hubRoute.deletedAt.isNull());
+        builder.and(keywordBuilder);
 
         return builder;
     }

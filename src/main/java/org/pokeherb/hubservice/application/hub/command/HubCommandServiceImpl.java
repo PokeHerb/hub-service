@@ -56,7 +56,7 @@ public class HubCommandServiceImpl implements HubCommandService {
     @Override
     @CachePut(value = "hubCache", key = "#result.hubId")
     public HubResponse modifyHub(Long hubId, HubModificationRequest request) {
-        Hub hub = hubRepository.findByHubId(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
+        Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         if (request.hubName() != null) {
             hub.changeHubName(request.hubName(), checkAccessHub);
         }
@@ -87,7 +87,7 @@ public class HubCommandServiceImpl implements HubCommandService {
 
     @Override
     public void deleteHub(Long hubId) {
-        Hub hub = hubRepository.findByHubId(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
+        Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
 
         // 현재 로그인한 사용자 username 가져오기
         String username = securityUtils.getCurrentUsername();

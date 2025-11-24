@@ -1,14 +1,14 @@
 package org.pokeherb.hubservice.application.hub.query;
 
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface HubQueryService {
     // 허브 목록 조회
-    List<HubResponse> getHubList();
+    Page<HubResponse> getHubList(Pageable pageable);
     // 단일 허브 조회
     HubResponse getHub(Long hubId);
     // 허브 검색
-    List<HubResponse> searchHubList(String keyword);
+    Page<HubResponse> searchHubList(String keyword, Pageable pageable);
 }
