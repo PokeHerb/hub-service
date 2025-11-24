@@ -12,8 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class HubRouteQueryServiceImpl implements HubRouteQueryService {
@@ -37,8 +35,8 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
     }
 
     @Override
-    public List<HubRouteResponse> searchHubRouteList(String keyword) {
-        List<HubRoute> hubRoutes = hubRouteDetailsRepository.searchHubRouteByKeyword(keyword);
-        return hubRoutes.stream().map(HubRouteResponse::from).toList();
+    public Page<HubRouteResponse> searchHubRouteList(String keyword, Pageable pageable) {
+        Page<HubRoute> hubRoutes = hubRouteDetailsRepository.searchHubRouteByKeyword(keyword, pageable);
+        return hubRoutes.map(HubRouteResponse::from);
     }
 }

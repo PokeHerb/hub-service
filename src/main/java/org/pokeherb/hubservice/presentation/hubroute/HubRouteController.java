@@ -63,8 +63,8 @@ public class HubRouteController {
     }
 
     @GetMapping("/search")
-    public CustomResponse<List<HubRouteResponse>> searchHubRoute(@RequestParam("keyword") String keyword) {
-        List<HubRouteResponse> hubRouteResponses = hubRouteQueryService.searchHubRouteList(keyword);
+    public CustomResponse<Page<HubRouteResponse>> searchHubRoute(@RequestParam("keyword") String keyword, Pageable pageable) {
+        Page<HubRouteResponse> hubRouteResponses = hubRouteQueryService.searchHubRouteList(keyword, pageable);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubRouteResponses);
     }
 }

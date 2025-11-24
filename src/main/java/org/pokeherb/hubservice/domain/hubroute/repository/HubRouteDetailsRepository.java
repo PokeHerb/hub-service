@@ -1,9 +1,9 @@
 package org.pokeherb.hubservice.domain.hubroute.repository;
 
 import org.pokeherb.hubservice.domain.hubroute.entity.HubRoute;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface HubRouteDetailsRepository {
-    List<HubRoute> searchHubRouteByKeyword(String keyword);
+    Page<HubRoute> searchHubRouteByKeyword(String keyword, Pageable pageable);
 }
