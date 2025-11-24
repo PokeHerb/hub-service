@@ -10,6 +10,8 @@ import org.pokeherb.hubservice.application.hubroute.query.FinalHubRouteQueryServ
 import org.pokeherb.hubservice.application.hubroute.query.HubRouteQueryService;
 import org.pokeherb.hubservice.global.infrastructure.CustomResponse;
 import org.pokeherb.hubservice.global.infrastructure.success.GeneralSuccessCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,8 +45,8 @@ public class HubRouteController {
     }
 
     @GetMapping
-    public CustomResponse<List<HubRouteResponse>> getHubRouteList() {
-        List<HubRouteResponse> hubRouteResponses = hubRouteQueryService.getHubRouteList();
+    public CustomResponse<Page<HubRouteResponse>> getHubRouteList(Pageable pageable) {
+        Page<HubRouteResponse> hubRouteResponses = hubRouteQueryService.getHubRouteList(pageable);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubRouteResponses);
     }
 
