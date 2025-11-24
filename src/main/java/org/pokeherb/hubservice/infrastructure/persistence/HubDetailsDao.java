@@ -27,13 +27,17 @@ public class HubDetailsDao implements HubDetailsRepository {
 
         // content 쿼리
         List<Hub> content = jpaQueryFactory.selectFrom(hub)
-                .where(hub.hubName.containsIgnoreCase(keyword)
-                        .or(hub.address.sido.containsIgnoreCase(keyword))
-                        .or(hub.address.sigungu.containsIgnoreCase(keyword))
-                        .or(hub.address.eupmyeon.containsIgnoreCase(keyword))
-                        .or(hub.address.ri.containsIgnoreCase(keyword))
-                        .or(hub.address.dong.containsIgnoreCase(keyword))
-                        .or(hub.address.street.containsIgnoreCase(keyword)))
+                .where(hub.deletedAt.isNull()
+                        .and(
+                                hub.hubName.containsIgnoreCase(keyword)
+                                        .or(hub.address.sido.containsIgnoreCase(keyword))
+                                        .or(hub.address.sigungu.containsIgnoreCase(keyword))
+                                        .or(hub.address.eupmyeon.containsIgnoreCase(keyword))
+                                        .or(hub.address.ri.containsIgnoreCase(keyword))
+                                        .or(hub.address.dong.containsIgnoreCase(keyword))
+                                        .or(hub.address.street.containsIgnoreCase(keyword))
+                        ))
+                .where(hub.deletedAt.isNull())
                 .orderBy(getOrderSpecifiers(pageable))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -41,13 +45,16 @@ public class HubDetailsDao implements HubDetailsRepository {
 
         // count 쿼리
         Long totalCount = jpaQueryFactory.select(hub.count()).from(hub)
-                .where(hub.hubName.containsIgnoreCase(keyword)
-                        .or(hub.address.sido.containsIgnoreCase(keyword))
-                        .or(hub.address.sigungu.containsIgnoreCase(keyword))
-                        .or(hub.address.eupmyeon.containsIgnoreCase(keyword))
-                        .or(hub.address.ri.containsIgnoreCase(keyword))
-                        .or(hub.address.dong.containsIgnoreCase(keyword))
-                        .or(hub.address.street.containsIgnoreCase(keyword)))
+                .where(hub.deletedAt.isNull()
+                        .and(
+                                hub.hubName.containsIgnoreCase(keyword)
+                                        .or(hub.address.sido.containsIgnoreCase(keyword))
+                                        .or(hub.address.sigungu.containsIgnoreCase(keyword))
+                                        .or(hub.address.eupmyeon.containsIgnoreCase(keyword))
+                                        .or(hub.address.ri.containsIgnoreCase(keyword))
+                                        .or(hub.address.dong.containsIgnoreCase(keyword))
+                                        .or(hub.address.street.containsIgnoreCase(keyword))
+                        ))
                 .fetchOne();
 
         // totalCount가 null일 수 있으므로 객체로 받아 정수로 변환

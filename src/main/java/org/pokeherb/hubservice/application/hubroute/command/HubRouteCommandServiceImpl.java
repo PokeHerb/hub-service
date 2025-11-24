@@ -45,14 +45,14 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
             value = "hubRouteCache",
             key = "T(String).valueOf(#result.startHubId) + '::' + T(String).valueOf(#result.endHubId)")
     public HubRouteResponse updateHubRoute(Long startHubId, Long endHubId) {
-        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
+        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
         hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
         return HubRouteResponse.from(hubRouteRepository.save(hubRoute));
     }
 
     @Override
     public void deleteHubRoute(Long startHubId, Long endHubId) {
-        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
+        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
         // 현재 로그인한 사용자 username 가져오기
         String username = securityUtils.getCurrentUsername();
         hubRoute.deleteHubRoute(username, checkAccessHub);

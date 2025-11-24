@@ -32,7 +32,7 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
             value = "hubRouteCache",
             key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId)")
     public HubRouteResponse getHubRoute(Long startHubId, Long endHubId) {
-        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubId(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
+        HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
         return HubRouteResponse.from(hubRoute);
     }
 

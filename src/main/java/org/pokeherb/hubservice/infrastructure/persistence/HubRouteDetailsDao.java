@@ -27,12 +27,12 @@ public class HubRouteDetailsDao implements HubRouteDetailsRepository {
                 .leftJoin(startHub).on(startHub.hubId.eq(hubRoute.startHubId))
                 .leftJoin(endHub).on(endHub.hubId.eq(hubRoute.endHubId))
                 .where(
-                        containsKeyword(startHub, endHub, keyword)
+                        containsKeyword(hubRoute, startHub, endHub, keyword)
                 )
                 .fetch();
     }
 
-    private BooleanBuilder containsKeyword(QHub startHub, QHub endHub, String keyword) {
+    private BooleanBuilder containsKeyword(QHubRoute hubRoute, QHub startHub, QHub endHub, String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return null;
         }
@@ -57,15 +57,18 @@ public class HubRouteDetailsDao implements HubRouteDetailsRepository {
                 endHub.address.street
         };
 
-        BooleanBuilder builder = new BooleanBuilder();
-
+        BooleanBuilder keywordBuilder = new BooleanBuilder();
         for (StringExpression f : startFields) {
-            builder.or(f.containsIgnoreCase(keyword));
+            keywordBuilder.or(f.containsIgnoreCase(keyword));
         }
 
         for (StringExpression f : endFields) {
-            builder.or(f.containsIgnoreCase(keyword));
+            keywordBuilder.or(f.containsIgnoreCase(keyword));
         }
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(hubRoute.deletedAt.isNull());
+        builder.and(keywordBuilder);
 
         return builder;
     }
