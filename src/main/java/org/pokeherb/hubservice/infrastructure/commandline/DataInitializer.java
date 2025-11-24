@@ -52,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
         // 허브 생성
         List<HubCreationRequest> hubRequests = List.of(
                 new HubCreationRequest("서울특별시 센터",
-                        new AddressDto("서울특별자치시", "송파구", null, null, null, "송파대로", "55", null)),
+                        new AddressDto("서울특별시", "송파구", null, null, null, "송파대로", "55", null)),
                 new HubCreationRequest("경기북부 센터",
                         new AddressDto("경기도", "고양시 덕양구", null, null, null, "권율대로", "570", null)),
                 new HubCreationRequest("경기남부 센터",
@@ -76,13 +76,13 @@ public class DataInitializer implements CommandLineRunner {
                 new HubCreationRequest("충청북도 센터",
                         new AddressDto("충청북도", "청주시 상당구", null, null, null, "상당로", "82", null)),
                 new HubCreationRequest("충청남도 센터",
-                        new AddressDto("충청남도", "홍성군 홍북읍", null, null, null, "충남대로", "21", null)),
+                        new AddressDto("충청남도", "홍성군", "홍북읍", null, null, "충남대로", "21", null)),
                 new HubCreationRequest("전북특별자치도 센터",
                         new AddressDto("전북특별자치도", "전주시 완산구", null, null, null, "효자로", "225", null)),
                 new HubCreationRequest("전라남도 센터",
-                        new AddressDto("전라남도", "무안군 삼향읍", null, null, null, "오룡길", "1", null)),
+                        new AddressDto("전라남도", "무안군", "삼향읍", null, null, "오룡길", "1", null)),
                 new HubCreationRequest("경상북도 센터",
-                        new AddressDto("경상북도", "안동시 풍천면", null, null, null, "도청대로", "455", null)),
+                        new AddressDto("경상북도", "안동시", "풍천면", null, null, "도청대로", "455", null)),
                 new HubCreationRequest("경상남도 센터",
                         new AddressDto("경상남도", "창원시 의창구", null, null, null, "중앙대로", "300", null))
         );
