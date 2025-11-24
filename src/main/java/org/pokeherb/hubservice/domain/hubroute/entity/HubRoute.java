@@ -18,7 +18,10 @@ import java.util.Map;
  * 4. 소요시간, 이동거리는 경로 탐색 앱을 활용해 미리 조회 및 저장
  * */
 @Entity
-@Table(name = "p_hub_route")
+@Table(
+        name = "p_hub_route",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"start_hub_id", "end_hub_id"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Access(AccessType.FIELD)
