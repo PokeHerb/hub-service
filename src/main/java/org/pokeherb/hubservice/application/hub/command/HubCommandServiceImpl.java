@@ -47,6 +47,8 @@ public class HubCommandServiceImpl implements HubCommandService {
                 .street(request.address().street())
                 .buildingNo(request.address().buildingNo())
                 .details(request.address().details())
+                .checkAccessHub(checkAccessHub)
+                .converter(addressToCoordinateConverter)
                 .build());
         return HubResponse.from(hub);
     }
@@ -75,6 +77,9 @@ public class HubCommandServiceImpl implements HubCommandService {
             List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(),  hub.getHubId());
             hubRoutes.forEach(hubRoute -> {
                 hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
+
+                // 수정된 정보 캐시 삭제
+                cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
             });
         }
         return HubResponse.from(hubRepository.save(hub));
