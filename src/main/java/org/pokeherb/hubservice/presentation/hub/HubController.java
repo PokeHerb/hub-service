@@ -9,6 +9,7 @@ import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 import org.pokeherb.hubservice.application.hub.query.HubQueryService;
 import org.pokeherb.hubservice.global.infrastructure.CustomResponse;
 import org.pokeherb.hubservice.global.infrastructure.success.GeneralSuccessCode;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +29,8 @@ public class HubController {
     }
 
     @GetMapping
-    public CustomResponse<List<HubResponse>> getHubList() {
-        List<HubResponse> hubResponses = hubQueryService.getHubList();
+    public CustomResponse<Page<HubResponse>> getHubList(Pageable pageable) {
+        Page<HubResponse> hubResponses = hubQueryService.getHubList(pageable);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubResponses);
     }
 

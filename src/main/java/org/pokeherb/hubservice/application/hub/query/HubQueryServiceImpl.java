@@ -8,6 +8,8 @@ import org.pokeherb.hubservice.domain.hub.repository.HubDetailsRepository;
 import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +22,9 @@ public class HubQueryServiceImpl implements HubQueryService {
     private final HubDetailsRepository hubDetailsRepository;
 
     @Override
-    public List<HubResponse> getHubList() {
-        List<Hub> hubs = hubRepository.findAllByDeletedAtIsNull();
-        return hubs.stream().map(HubResponse::from).toList();
+    public Page<HubResponse> getHubList(Pageable pageable) {
+        Page<Hub> hubs = hubRepository.findAllByDeletedAtIsNull(pageable);
+        return hubs.map(HubResponse::from);
     }
 
     @Override
