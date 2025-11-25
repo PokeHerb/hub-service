@@ -25,7 +25,7 @@ public class CacheConfig {
         RedisCacheConfiguration configuration = RedisCacheConfiguration
                 .defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofDays(14))
+                .entryTtl(Duration.ofHours(12))
                 .computePrefixWith(CacheKeyPrefix.simple())
                 .serializeValuesWith(
                         SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
