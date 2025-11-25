@@ -22,20 +22,44 @@ public class KakaoClient {
 
     private final ObjectMapper om;
 
+    private RestClient createRestClient(String baseUrl) {
+        return RestClient.builder().baseUrl(baseUrl).build();
+    }
+
+    /**
+     * 카카오 API로 get 요청
+     * */
     public JsonNode get(String baseUrl) {
-        RestClient client = RestClient
-                .builder()
-                .baseUrl(baseUrl)
-                .build();
+        RestClient client = createRestClient(baseUrl);
 
         ResponseEntity<String> res = client.get()
                 .header("Authorization", "KakaoAK " + kakaoApiKey)
+                .header("Content-Type", "application/json")
                 .retrieve()
                 .toEntity(String.class);
+
+        return handleResponse(res);
+    }
+
+    /**
+     * 카카오 API로 post 요청
+     * */
+    public JsonNode post(String baseUrl, Object body) {
+        RestClient client = createRestClient(baseUrl);
+
+        ResponseEntity<String> res = client.post()
+                .header("Authorization", "KakaoAK " + kakaoApiKey)
+                .body(body)
+                .retrieve()
+                .toEntity(String.class);
+
+        return handleResponse(res);
+    }
+
+    private JsonNode handleResponse(ResponseEntity<String> res) {
         if (!res.getStatusCode().is2xxSuccessful()) {
             throw new CustomException(ApiErrorCode.KAKAO_API_CALL_FAILED);
         }
-
         try {
             return om.readTree(res.getBody());
         } catch (JsonProcessingException e) {
