@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/hub")
 public class HubController {
 
     private final HubCommandService hubCommandService;
@@ -55,5 +54,10 @@ public class HubController {
     public CustomResponse<Page<HubResponse>> searchHub(@RequestParam("keyword") String keyword, Pageable pageable) {
         Page<HubResponse> hubResponses = hubQueryService.searchHubList(keyword, pageable);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubResponses);
+    }
+
+    @GetMapping("/{hubId}/exists")
+    public CustomResponse<Boolean> existHub(@PathVariable Long hubId) {
+        return CustomResponse.onSuccess(GeneralSuccessCode.OK, hubQueryService.existsHub(hubId));
     }
 }
