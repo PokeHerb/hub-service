@@ -37,4 +37,10 @@ public class HubQueryServiceImpl implements HubQueryService {
         Page<Hub> hubs = hubDetailsRepository.searchHubByKeyword(keyword, pageable);
         return hubs.map(HubResponse::from);
     }
+
+    @Override
+    public Boolean existsHub(Long id) {
+        Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(id).orElse(null);
+        return hub != null;
+    }
 }
