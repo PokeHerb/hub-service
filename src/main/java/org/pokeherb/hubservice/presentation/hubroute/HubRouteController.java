@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/route")
 public class HubRouteController {
 
     private final HubRouteCommandService hubRouteCommandService;
