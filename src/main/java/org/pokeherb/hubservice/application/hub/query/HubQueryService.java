@@ -11,4 +11,6 @@ public interface HubQueryService {
     HubResponse getHub(Long hubId);
     // 허브 검색
     Page<HubResponse> searchHubList(String keyword, Pageable pageable);
+    // 허브 존재 확인
+    Boolean existsHub(Long id);
 }
