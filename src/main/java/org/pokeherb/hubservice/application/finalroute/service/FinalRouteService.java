@@ -1,9 +1,9 @@
-package org.pokeherb.hubservice.application.hubroute.query;
+package org.pokeherb.hubservice.application.finalroute.service;
 
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 
 import java.util.List;
 
-public interface FinalHubRouteQueryService {
+public interface FinalRouteService {
     List<HubResponse> getFinalHubRoute(Long startHubId, Long endHubId, String cost);
 }

@@ -6,7 +6,7 @@ import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 import org.pokeherb.hubservice.application.hubroute.command.HubRouteCommandService;
 import org.pokeherb.hubservice.application.hubroute.dto.HubRouteCreationRequest;
 import org.pokeherb.hubservice.application.hubroute.dto.HubRouteResponse;
-import org.pokeherb.hubservice.application.hubroute.query.FinalHubRouteQueryService;
+import org.pokeherb.hubservice.application.finalroute.service.FinalRouteService;
 import org.pokeherb.hubservice.application.hubroute.query.HubRouteQueryService;
 import org.pokeherb.hubservice.global.infrastructure.CustomResponse;
 import org.pokeherb.hubservice.global.infrastructure.success.GeneralSuccessCode;
@@ -23,11 +23,11 @@ public class HubRouteController {
 
     private final HubRouteCommandService hubRouteCommandService;
     private final HubRouteQueryService hubRouteQueryService;
-    private final FinalHubRouteQueryService finalHubRouteQueryService;
+    private final FinalRouteService finalRouteService;
 
     @GetMapping("/final/{startHubId}/{endHubId}")
     public CustomResponse<List<HubResponse>> getFinalHubRouteSequence(@PathVariable Long startHubId, @PathVariable Long endHubId, @RequestParam("cost") String cost) {
-        List<HubResponse> routeSequence = finalHubRouteQueryService.getFinalHubRoute(startHubId, endHubId, cost);
+        List<HubResponse> routeSequence = finalRouteService.getFinalHubRoute(startHubId, endHubId, cost);
         return CustomResponse.onSuccess(GeneralSuccessCode.OK, routeSequence);
     }
 

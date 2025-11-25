@@ -1,4 +1,4 @@
-package org.pokeherb.hubservice.application.hubroute.query;
+package org.pokeherb.hubservice.application.finalroute.service;
 
 import lombok.RequiredArgsConstructor;
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FinalHubRouteQueryServiceImpl implements FinalHubRouteQueryService {
+public class FinalRouteServiceImpl implements FinalRouteService {
 
     private final FinalRouteFactory finalRouteFactory;
     private final HubRepository hubRepository;
