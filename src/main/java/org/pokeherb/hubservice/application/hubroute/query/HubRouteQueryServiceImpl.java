@@ -27,8 +27,9 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
 
     @Override
     @Cacheable(
-            value = "hubRouteCache",
-            key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId)")
+            cacheNames = "hubRouteCache",
+            key = "T(String).valueOf(#startHubId) + '::' + T(String).valueOf(#endHubId)"
+    )
     public HubRouteResponse getHubRoute(Long startHubId, Long endHubId) {
         HubRoute hubRoute = hubRouteRepository.findByStartHubIdAndEndHubIdAndDeletedAtIsNull(startHubId, endHubId).orElseThrow(() -> new CustomException(HubRouteErrorCode.HUB_ROUTE_NOT_FOUND));
         return HubRouteResponse.from(hubRoute);
