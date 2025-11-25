@@ -1,7 +1,6 @@
 package org.pokeherb.hubservice.application.hub.command;
 
 import lombok.RequiredArgsConstructor;
-import org.pokeherb.hubservice.application.cache.CacheService;
 import org.pokeherb.hubservice.application.hub.dto.HubCreationRequest;
 import org.pokeherb.hubservice.application.hub.dto.HubModificationRequest;
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
@@ -15,6 +14,7 @@ import org.pokeherb.hubservice.domain.hubroute.repository.HubRouteRepository;
 import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
 import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
 import org.pokeherb.hubservice.infrastructure.security.SecurityUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +32,9 @@ public class HubCommandServiceImpl implements HubCommandService {
     private final AddressToCoordinateConverter addressToCoordinateConverter;
     private final TravelInfoCalculator travelInfoCalculator;
     private final SecurityUtils securityUtils;
-    private final CacheService cacheService;
 
     @Override
-    @CachePut(value = "hubCache", key = "#result.hubId")
+    @CachePut(cacheNames = "hubCache", key = "#result.hubId")
     public HubResponse createHub(HubCreationRequest request) {
         Hub hub = hubRepository.save(Hub.builder()
                 .hubName(request.hubName())
@@ -54,7 +53,7 @@ public class HubCommandServiceImpl implements HubCommandService {
     }
 
     @Override
-    @CachePut(value = "hubCache", key = "#result.hubId")
+    @CachePut(cacheNames = "hubCache", key = "#result.hubId")
     public HubResponse modifyHub(Long hubId, HubModificationRequest request) {
         Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         if (request.hubName() != null) {
@@ -79,13 +78,16 @@ public class HubCommandServiceImpl implements HubCommandService {
                 hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
 
                 // 수정된 정보 캐시 삭제
-                cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
+                //cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
             });
+            // 최종 이동 경로 캐시 삭제
+            //cacheService.evictFinalRoute();
         }
         return HubResponse.from(hubRepository.save(hub));
     }
 
     @Override
+    @CacheEvict(cacheNames = "hubCache", key = "#hubId")
     public void deleteHub(Long hubId) {
         Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
 
@@ -94,17 +96,17 @@ public class HubCommandServiceImpl implements HubCommandService {
         // 허브 삭제
         hub.deleteHub(username, checkAccessHub);
         // 캐시에서도 허브 삭제
-        cacheService.evictHub(hubId);
+        //cacheService.evictHub(hubId);
 
         // 삭제된 허브가 포함된 허브 간 이동 정보도 삭제 (비활성화)
         List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(), hub.getHubId());
         hubRoutes.forEach(hubRoute -> {
             hubRoute.deleteHubRoute(username, checkAccessHub);
             // 캐시에서도 허브 간 이동 정보 삭제
-            cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
+            //cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
         });
 
-        // 최종 이동 경로 캐시에서도 해당 허브가 포함된 캐시 삭제
-        cacheService.evictFinalRoute(hubId);
+        // 최종 이동 경로 캐시 삭제
+        //cacheService.evictFinalRoute();
     }
 }

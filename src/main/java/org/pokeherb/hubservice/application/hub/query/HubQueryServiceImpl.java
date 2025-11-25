@@ -26,7 +26,7 @@ public class HubQueryServiceImpl implements HubQueryService {
     }
 
     @Override
-    @Cacheable(value = "hubCache", key = "#hubId")
+    @Cacheable(cacheNames = "hubCache", key = "#hubId")
     public HubResponse getHub(Long hubId) {
         Hub hub = hubRepository.findByHubIdAndDeletedAtIsNull(hubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
         return HubResponse.from(hub);

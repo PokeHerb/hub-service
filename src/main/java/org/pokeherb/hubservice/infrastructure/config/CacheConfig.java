@@ -7,7 +7,7 @@ import org.springframework.data.redis.cache.CacheKeyPrefix;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.time.Duration;
 
@@ -25,10 +25,10 @@ public class CacheConfig {
         RedisCacheConfiguration configuration = RedisCacheConfiguration
                 .defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofDays(14))
+                .entryTtl(Duration.ofHours(12))
                 .computePrefixWith(CacheKeyPrefix.simple())
                 .serializeValuesWith(
-                        SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
+                        SerializationPair.fromSerializer(RedisSerializer.java())
                 );
         return RedisCacheManager
                 .builder(redisConnectionFactory)
