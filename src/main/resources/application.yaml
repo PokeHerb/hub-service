@@ -1,3 +1,5 @@
+
+
 spring:
   application:
     name: hub-service
@@ -20,3 +22,5 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://35.216.57.113:3150/eureka/
+server:
+  port: 4040

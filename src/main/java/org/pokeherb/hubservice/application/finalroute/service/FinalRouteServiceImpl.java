@@ -45,7 +45,8 @@ public class FinalRouteServiceImpl implements FinalRouteService {
      * 배송 정보 생성 요청 시 포함할 업체까지의 최종 소요시간 및 이동거리 계산
      * @return FinalRouteResponse 최종 소요시간, 최종 이동거리, 허브 간 이동 순서 정보
      * */
-    public FinalRouteResponse getDeliveryInfo(List<HubResponse> routeSequence, Map<String, String> destination) {
+    @Override
+    public FinalRouteResponse getDeliveryInfo(List<HubResponse> routeSequence, Map<String, Double> destination) {
         Map<String, Double> finalTravelInfo = travelInfoCalculator.calculateFinalTravelInfo(routeSequence, destination);
         return new FinalRouteResponse(
                 finalTravelInfo.get("finalDistance"),
