@@ -8,10 +8,7 @@ import org.pokeherb.hubservice.application.finalroute.dto.FinalRouteResponse;
 import org.pokeherb.hubservice.application.finalroute.service.FinalRouteService;
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
 import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
-import org.pokeherb.hubservice.infrastructure.messaging.dto.DeliveryCreateRequestMessage;
-import org.pokeherb.hubservice.infrastructure.messaging.dto.OrderCanceledEventMessage;
-import org.pokeherb.hubservice.infrastructure.messaging.dto.OrderCreatedEventMessage;
-import org.pokeherb.hubservice.infrastructure.messaging.dto.ProductStockRequestMessage;
+import org.pokeherb.hubservice.infrastructure.messaging.dto.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -49,8 +46,9 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
         //List<Long> routeSequence = List.of(1L, 3L, 5L, 4L);
         log.info("Received routeSequence from RabbitMQ: {}", routeSequence);
         // 삼품 재고 감소 요청 메시지 발행
-        //ProductStockRequestMessage productStockRequestMessage = new ProductStockRequestMessage(receivedMessage.orderId(), receivedMessage.quantity());
-        //rabbitProducer.publishEvent(productStockRequestMessage, "product.decrease.stock"); // TODO: 재고 감소 라우팅키 확인
+        ProductStockRequestMessage productStockRequestMessage = new ProductStockRequestMessage(receivedMessage.productId(), receivedMessage.quantity());
+        log.info("Product stock request message {}", productStockRequestMessage);
+        rabbitProducer.publishEvent(productStockRequestMessage, "product.decrease.stock"); // TODO: 재고 감소 라우팅키 확인
         // 허브 배송 담당자 배정 확인
         //if (driverServiceClient.getHubDriverId().getResult() == null) {
         //    throw new CustomException(ApiErrorCode.FAIL_ASSIGN_HUB_DRIVER);
@@ -74,7 +72,7 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
     @Override
     public void handleOrderCanceledEvent(String payload) throws JsonProcessingException {
         OrderCanceledEventMessage receiveMessage = objectMapper.readValue(payload, OrderCanceledEventMessage.class);
-        ProductStockRequestMessage productStockRequestMessage = new ProductStockRequestMessage(receiveMessage.orderId(), receiveMessage.quantity());
+        ProductStockRequestMessage productStockRequestMessage = new ProductStockRequestMessage(receiveMessage.productId(), receiveMessage.stock());
         rabbitProducer.publishEvent(productStockRequestMessage, "product.increase.stock"); // TODO : 재고 증가 라우팅키 확인
     }
 }
