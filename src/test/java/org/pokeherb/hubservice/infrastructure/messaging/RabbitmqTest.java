@@ -35,4 +35,9 @@ public class RabbitmqTest {
         );
         rabbitProducer.publishEvent(requestMessage, "hub.created.order");
     }
+
+    @Test
+    void rabbitmqTest() {
+        rabbitProducer.publishEvent("test", "hub.retry.test");
+    }
 }
