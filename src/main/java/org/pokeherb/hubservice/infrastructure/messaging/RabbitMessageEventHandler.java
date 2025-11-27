@@ -40,7 +40,7 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
     public void handleOrderCreatedEvent(String payload) throws JsonProcessingException {
         // 주문 생성 메시지 payload 받기
         OrderCreatedEventMessage receivedMessage = objectMapper.readValue(payload, OrderCreatedEventMessage.class);
-        log.info("Received message {}", receivedMessage);
+        log.info("주문 생성 이벤트 메시지 구독 성공 {}", receivedMessage);
         // 업체 주소를 좌표로 변환
         Map<String, Double> coordinate = addressToCoordinateConverter.convert(receivedMessage.vendorAddress());
         // 출발 허브와 목적 허브를 이용하여 최종 경로 계산
@@ -50,7 +50,7 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
         List<Long> routeSequence = route.stream().map(HubResponse::hubId).toList();
         // 삼품 재고 감소 요청 메시지 발행
         ProductStockRequestMessage productStockRequestMessage = new ProductStockRequestMessage(receivedMessage.productId(), receivedMessage.quantity());
-        log.info("Product stock request message {}", productStockRequestMessage);
+        log.info("상품 재고 감소 요청 메시지 발행 성공 {}", productStockRequestMessage);
         rabbitProducer.publishEvent(productStockRequestMessage, "product.decrease.stock");
         // 허브 배송 담당자 배정 확인
         if (driverServiceClient.getHubDriverId().getResult() == null) {
@@ -62,17 +62,26 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
             throw new CustomException(ApiErrorCode.FAIL_ASSIGN_VENDOR_DRIVER);
         }
         UUID driverId = res.getResult().driverId();
+
+        try {
+            // 5초 대기
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread interrupted during sleep", e);
+        }
+
         // 배송 생성 요청 메시지 발행
         DeliveryCreateRequestMessage deliveryCreateRequestMessage = DeliveryCreateRequestMessage.from(receivedMessage, routeSequence, finalRouteResponse.finalDuration(), finalRouteResponse.finalDistance(), driverId);
-        log.info("DeliveryCreateRequestMessage {}", deliveryCreateRequestMessage);
-        rabbitProducer.publishEvent(deliveryCreateRequestMessage, "delivery.create");
+        log.info("배송 생성 요청 메시지 발행 성공 {}", deliveryCreateRequestMessage);
+        rabbitProducer.publishEvent(deliveryCreateRequestMessage, "delivery.update");
         // 주문 상태 변경 요청 메시지 발행 (배송 시작)
         OrderStatusRequestMessage orderStatusRequestMessage = new OrderStatusRequestMessage(receivedMessage.orderId(), "IN_DELIVERY", LocalDateTime.now());
-        log.info("OrderStatusRequestMessage {}", orderStatusRequestMessage);
+        log.info("주문 상태 변경 요청 메시지 발행 성공 {}", orderStatusRequestMessage);
         rabbitProducer.publishEvent(orderStatusRequestMessage, "order.status");
         // 배송 상태 변경 요청 메시지 발행 (배송 시작)
         DeliveryStatusRequestMessage deliveryStatusRequestMessage = new DeliveryStatusRequestMessage(receivedMessage.orderId(), "IN_DELIVERY", LocalDateTime.now());
-        log.info("OrderStatusRequestMessage {}", orderStatusRequestMessage);
+        log.info("배송 상태 변경 요청 메시지 발행 성공 {}", deliveryStatusRequestMessage);
         rabbitProducer.publishEvent(deliveryStatusRequestMessage, "delivery.status");
 
         Hub startHub = hubRepository.findByHubIdAndDeletedAtIsNull(receivedMessage.startHubId()).orElse(null);
