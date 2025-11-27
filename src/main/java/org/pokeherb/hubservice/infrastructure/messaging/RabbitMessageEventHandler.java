@@ -91,6 +91,7 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
                 .stopoverHub(waypoints)
                 .arrivalAddress(receivedMessage.vendorAddress())
                 .deliveryDriverName(res.getResult().driverName())
+                .finalDuration(finalRouteResponse.finalDuration() / 3600)
                 .build();
         rabbitProducer.publishEvent(slackRequestMessage, "slack.message.official");
     }

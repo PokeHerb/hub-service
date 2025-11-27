@@ -18,6 +18,7 @@ public record SlackRequestMessage(
         String startHub,
         List<String> stopoverHub,
         String arrivalAddress,
-        String deliveryDriverName
+        String deliveryDriverName,
+        Double finalDuration
 ) {
 }
