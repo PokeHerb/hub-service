@@ -1,0 +1,88 @@
+package org.pokeherb.hubservice.domain.hubroute.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hubroute.exception.HubRouteErrorCode;
+import org.pokeherb.hubservice.domain.hubroute.service.TravelInfoCalculator;
+import org.pokeherb.hubservice.domain.hubroute.value.TravelInfo;
+import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+
+import java.util.Map;
+
+/**
+ * 1. 허브 간 이동 정보는 모든 사용자가 조회 가능
+ * 2. 생성, 수정, 삭제는 마스터 관리자만 가능
+ * 3. 허브 수정, 삭제 시 종속적으로 내용 변경
+ * 4. 소요시간, 이동거리는 경로 탐색 앱을 활용해 미리 조회 및 저장
+ * */
+@Entity
+@Table(
+        name = "p_hub_route",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"start_hub_id", "end_hub_id"})
+)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Access(AccessType.FIELD)
+@ToString
+public class HubRoute extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long hubRouteId;
+
+    private Long startHubId;
+
+    private Long endHubId;
+
+    @Embedded
+    private TravelInfo travelInfo;
+
+    /**
+     * 허브 간 이동 정보 생성은 마스터 관리자만 가능
+     * 허브가 생성되면 시스템 내부적으로 생성
+     * */
+    @Builder
+    public HubRoute(Long startHubId, Long endHubId, TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        if (startHubId == null  || endHubId == null) {
+            throw new CustomException(HubRouteErrorCode.INVALID_HUB_ID);
+        }
+        this.startHubId = startHubId;
+        this.endHubId = endHubId;
+        setTravelInfo(startHubId, endHubId, calculator);
+    }
+
+    /**
+     * 출발 허브와 목적지 허브 간의 이동거리와 소요시간 구하기
+     * */
+    private void setTravelInfo(Long startHubId, Long endHubId, TravelInfoCalculator calculator) {
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        this.travelInfo = TravelInfo.builder()
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
+                .build();
+    }
+
+    /**
+     * 허브 간 이동거리와 소요시간을 재계산하여 수정
+     * 마스터 관리자만 수정 가능
+     * */
+    public void changeTravelInfo(TravelInfoCalculator calculator, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        Map<String, Double> infos = calculator.calculateTravelInfo(startHubId, endHubId);
+        this.travelInfo = TravelInfo.builder()
+                .duration(infos.get("duration"))
+                .distance(infos.get("distance"))
+                .build();
+    }
+
+    /**
+     * 마스터 관리자만 삭제 가능
+     * soft delete 처리
+     * */
+    public void deleteHubRoute(String username, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        this.softDelete(username);
+    }
+}

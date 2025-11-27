@@ -1,3 +1,5 @@
+
+
 spring:
   application:
     name: hub-service
@@ -13,10 +15,12 @@ spring:
 eureka:
   instance:
     prefer-ip-address: false
-    hostname: localhost
+    hostname: 35.216.57.113
 
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:3150/eureka/
+      defaultZone: http://35.216.57.113:3150/eureka/
+server:
+  port: 4040

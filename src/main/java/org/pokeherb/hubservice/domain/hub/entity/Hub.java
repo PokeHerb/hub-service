@@ -1,0 +1,110 @@
+package org.pokeherb.hubservice.domain.hub.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.pokeherb.hubservice.domain.hub.exception.HubErrorCode;
+import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
+import org.pokeherb.hubservice.domain.hub.service.CheckAccessHub;
+import org.pokeherb.hubservice.domain.hub.value.Address;
+import org.pokeherb.hubservice.domain.hub.value.Coordinate;
+import org.pokeherb.hubservice.global.domain.Auditable;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+
+import java.util.Map;
+
+/**
+ * 1. 모든 사용자가 조회 가능
+ * 2. 생성, 수정, 삭제는 마스터 관리자만 가능
+ * */
+@Entity
+@Table(name = "p_hub")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Access(AccessType.FIELD)
+@ToString
+public class Hub extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long hubId;
+
+    private String hubName;
+
+    @Embedded
+    private Address address;
+
+    @Embedded
+    private Coordinate coordinate;
+
+    /**
+     * 허브 생성은 마스터 관리자만 가능
+     * */
+    @Builder
+    public Hub(String hubName, String sido, String sigungu, String eupmyeon, String dong,
+               String ri, String street, String buildingNo, String details,
+               AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        if (hubName == null || hubName.isEmpty()) {
+            throw new CustomException(HubErrorCode.INVALID_HUB_NAME);
+        }
+        this.hubName = hubName;
+        this.address = Address.builder()
+                .sido(sido)
+                .sigungu(sigungu)
+                .eupmyeon(eupmyeon)
+                .dong(dong)
+                .ri(ri)
+                .street(street)
+                .buildingNo(buildingNo)
+                .details(details)
+                .build();
+        setCoordinate(converter);
+    }
+
+    /**
+     * String 주소를 위도, 경도로 변환하여 저장
+     * */
+    private void setCoordinate(AddressToCoordinateConverter converter) {
+        Map<String, Double> coordinates = converter.convert(address.toString());
+        this.coordinate = Coordinate.builder()
+                .latitude(coordinates.get("latitude"))
+                .longitude(coordinates.get("longitude"))
+                .build();
+    }
+
+    /**
+     * 허브 이름 수정은 마스터 관리자만 가능
+     * */
+    public void changeHubName(String hubName, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        this.hubName = hubName;
+    }
+
+    /**
+     * 허브 주소 수정은 마스터 관리자만 가능
+     * */
+    public void changeAddress(String sido, String sigungu, String eupmyeon, String dong,
+                              String ri, String street, String buildingNo, String details,
+                              AddressToCoordinateConverter converter, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        this.address = Address.builder()
+                .sido(sido)
+                .sigungu(sigungu)
+                .eupmyeon(eupmyeon)
+                .dong(dong)
+                .ri(ri)
+                .street(street)
+                .buildingNo(buildingNo)
+                .details(details)
+                .build();
+        setCoordinate(converter);
+    }
+
+    /**
+     * 허브 삭제는 soft delete로 구현
+     * 허브 삭제는 마스터 관리자만 가능
+     * */
+    public void deleteHub(String username, CheckAccessHub checkAccessHub) {
+        checkAccessHub.checkAccess();
+        this.softDelete(username);
+    }
+}

@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import org.pokeherb.hubservice.global.infrastructure.error.BaseErrorCode;
 import org.pokeherb.hubservice.global.infrastructure.success.BaseSuccessCode;
 import org.springframework.http.HttpStatus;
 
 @Builder
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @JsonPropertyOrder({"isSuccess","status","code","message","result"})
 // 필드값이 null 인 경우 포함 X
