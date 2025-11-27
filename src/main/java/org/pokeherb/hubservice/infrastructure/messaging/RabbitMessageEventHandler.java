@@ -7,7 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.pokeherb.hubservice.application.finalroute.dto.FinalRouteResponse;
 import org.pokeherb.hubservice.application.finalroute.service.FinalRouteService;
 import org.pokeherb.hubservice.application.hub.dto.HubResponse;
+import org.pokeherb.hubservice.domain.hub.entity.Hub;
+import org.pokeherb.hubservice.domain.hub.repository.HubRepository;
 import org.pokeherb.hubservice.domain.hub.service.AddressToCoordinateConverter;
+import org.pokeherb.hubservice.global.infrastructure.CustomResponse;
+import org.pokeherb.hubservice.global.infrastructure.exception.CustomException;
+import org.pokeherb.hubservice.infrastructure.api.DriverServiceClient;
+import org.pokeherb.hubservice.infrastructure.api.dto.DriverIdResponse;
+import org.pokeherb.hubservice.infrastructure.exception.ApiErrorCode;
 import org.pokeherb.hubservice.infrastructure.messaging.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +32,8 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
     private final AddressToCoordinateConverter addressToCoordinateConverter;
     private final FinalRouteService finalRouteService;
     private final RabbitProducer rabbitProducer;
-    //private final DriverServiceClient driverServiceClient;
+    private final HubRepository hubRepository;
+    private final DriverServiceClient driverServiceClient;
 
 
     @Override
@@ -45,16 +53,15 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
         log.info("Product stock request message {}", productStockRequestMessage);
         rabbitProducer.publishEvent(productStockRequestMessage, "product.decrease.stock");
         // 허브 배송 담당자 배정 확인
-        //if (driverServiceClient.getHubDriverId().getResult() == null) {
-        //    throw new CustomException(ApiErrorCode.FAIL_ASSIGN_HUB_DRIVER);
-        //}
+        if (driverServiceClient.getHubDriverId().getResult() == null) {
+            throw new CustomException(ApiErrorCode.FAIL_ASSIGN_HUB_DRIVER);
+        }
         // 업체 배송 담당자 배정 확인
-        //CustomResponse<DriverIdResponse> res = driverServiceClient.getVendorDriverId(receivedMessage.endHubId());
-        //if (res.getResult() == null) {
-        //    throw new CustomException(ApiErrorCode.FAIL_ASSIGN_VENDOR_DRIVER);
-        //}
-        //UUID driverId = res.getResult().driverId();
-        UUID driverId = UUID.randomUUID();
+        CustomResponse<DriverIdResponse> res = driverServiceClient.getVendorDriverId(receivedMessage.endHubId(), receivedMessage.orderId());
+        if (res.getResult() == null) {
+            throw new CustomException(ApiErrorCode.FAIL_ASSIGN_VENDOR_DRIVER);
+        }
+        UUID driverId = res.getResult().driverId();
         // 배송 생성 요청 메시지 발행
         DeliveryCreateRequestMessage deliveryCreateRequestMessage = DeliveryCreateRequestMessage.from(receivedMessage, routeSequence, finalRouteResponse.finalDuration(), finalRouteResponse.finalDistance(), driverId);
         log.info("DeliveryCreateRequestMessage {}", deliveryCreateRequestMessage);
@@ -67,6 +74,25 @@ public class RabbitMessageEventHandler implements MessageEventHandler {
         DeliveryStatusRequestMessage deliveryStatusRequestMessage = new DeliveryStatusRequestMessage(receivedMessage.orderId(), "IN_DELIVERY", LocalDateTime.now());
         log.info("OrderStatusRequestMessage {}", orderStatusRequestMessage);
         rabbitProducer.publishEvent(deliveryStatusRequestMessage, "delivery.status");
+
+        Hub startHub = hubRepository.findByHubIdAndDeletedAtIsNull(receivedMessage.startHubId()).orElse(null);
+        List<String> waypoints = route.stream().map(HubResponse::hubName).toList().subList(1, route.size());
+
+        // 슬랙 메시지 발송 요청
+        SlackRequestMessage slackRequestMessage = SlackRequestMessage.builder()
+                .receiverId(receivedMessage.orderUserId())
+                .slackId(receivedMessage.receiverSlackId())
+                .orderNo(receivedMessage.orderId())
+                .receiverName(receivedMessage.receiverName())
+                .orderDate(receivedMessage.createdAt())
+                .productName(receivedMessage.productName())
+                .dueAt(receivedMessage.dueAt())
+                .startHub(startHub.getHubName())
+                .stopoverHub(waypoints)
+                .arrivalAddress(receivedMessage.vendorAddress())
+                .deliveryDriverName(res.getResult().driverName())
+                .build();
+        rabbitProducer.publishEvent(slackRequestMessage, "slack.message.official");
     }
 
     @Override

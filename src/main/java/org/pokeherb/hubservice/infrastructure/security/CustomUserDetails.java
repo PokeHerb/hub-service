@@ -38,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<String> userRoles = StringUtils.hasText(roles) ? Arrays.stream(roles.split(",")).toList() : List.of("ROLE_USER");
+        List<String> userRoles = StringUtils.hasText(roles) ? Arrays.stream(roles.split(",")).toList() : List.of("ROLE_PENDING");
         return userRoles.stream().map(SimpleGrantedAuthority::new).toList();
     }
 
@@ -50,5 +50,12 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // 회원 승인 여부
+        // ROLE_PENDING이 포함되어 있다면 미승인, 없으면 승인
+        return !roles.contains("ROLE_PENDING");
     }
 }

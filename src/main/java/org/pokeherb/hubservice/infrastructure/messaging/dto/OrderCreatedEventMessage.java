@@ -18,6 +18,7 @@ public record OrderCreatedEventMessage(
         UUID receiveVendorId,
         String vendorAddress,
         UUID receiverSlackId,
-        String receiverName
+        String receiverName,
+        LocalDateTime createdAt
 ) {
 }

@@ -31,7 +31,8 @@ public class RabbitmqTest {
                 UUID.randomUUID(),
                 "부산광역시 해운대구 해운대해변로 266",
                 UUID.randomUUID(),
-                "수령인"
+                "수령인",
+                LocalDateTime.now()
         );
         rabbitProducer.publishEvent(requestMessage, "hub.created.order");
     }
