@@ -20,6 +20,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * 초기 데이터 생성
+ * */
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {

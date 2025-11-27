@@ -27,6 +27,9 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
     private final KakaoClient kakaoClient;
     private final HubRepository hubRepository;
 
+    /**
+     * 허브 간 이동 정보 계산
+     * */
     @Override
     public Map<String, Double> calculateTravelInfo(Long startHubId, Long endHubId) {
         Coordinate startCoordinate = hubRepository.findByHubIdAndDeletedAtIsNull(startHubId).orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND)).getCoordinate();
@@ -45,9 +48,11 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
         return Map.of();
     }
 
+    /**
+     * 다중 경유지를 포함한 이동 정보 계산
+     * */
     @Override
     public Map<String, Double> calculateFinalTravelInfo(List<HubResponse> routeSequence, Map<String, Double> destination) {
-        log.info("계산 시작");
         if (routeSequence == null || routeSequence.isEmpty()) {
             log.error("routeSequence is empty");
             throw new CustomException(ApiErrorCode.INVALID_ARGUMENT_FOR_ROUTE);
@@ -66,9 +71,7 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
             route.put("y", hubResponse.latitude().toString());
             waypoints.add(route);
         }
-        log.info("check");
         Map<String, String> destinations = Map.of("x", destination.get("longitude").toString(), "y", destination.get("latitude").toString());
-        log.info("destinations {}", destinations);
         body.put("origin", origin);
         body.put("destination", destinations);
         body.put("waypoints", waypoints);

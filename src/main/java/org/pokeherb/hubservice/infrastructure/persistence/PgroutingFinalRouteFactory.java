@@ -21,6 +21,9 @@ public class PgroutingFinalRouteFactory implements FinalRouteFactory {
             "distance", "distance"
     );
 
+    /**
+     * pgRouting 기능을 활용하여 최소 비용 경로 계산 (다익스트라 알고리즘)
+     * */
     @Override
     public List<Long> getRouteSequence(Long startHubId, Long endHubId, String cost) {
 

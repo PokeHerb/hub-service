@@ -19,12 +19,19 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
     private final HubRouteRepository hubRouteRepository;
     private final HubRouteDetailsRepository hubRouteDetailsRepository;
 
+    /**
+     * soft delete되지 않은 모든 허브 간 이동 정보 목록 조회
+     * - pagination
+     * */
     @Override
     public Page<HubRouteResponse> getHubRouteList(Pageable pageable) {
         Page<HubRoute> hubRoutes = hubRouteRepository.findAllByDeletedAtIsNull(pageable);
         return hubRoutes.map(HubRouteResponse::from);
     }
 
+    /**
+     * 출발 허브 id, 도착 허브 id를 통해 허브 간 이동 정보 조회
+     * */
     @Override
     @Cacheable(
             cacheNames = "hubRouteCache",
@@ -35,6 +42,10 @@ public class HubRouteQueryServiceImpl implements HubRouteQueryService {
         return HubRouteResponse.from(hubRoute);
     }
 
+    /**
+     * keyword를 통해 허브 간 이동 정보 검색
+     * - pagination
+     * */
     @Override
     public Page<HubRouteResponse> searchHubRouteList(String keyword, Pageable pageable) {
         Page<HubRoute> hubRoutes = hubRouteDetailsRepository.searchHubRouteByKeyword(keyword, pageable);

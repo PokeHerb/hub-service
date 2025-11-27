@@ -29,6 +29,9 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
     private final TravelInfoCalculator travelInfoCalculator;
     private final SecurityUtils securityUtils;
 
+    /**
+     * 허브 간 이동 정보 생성 (연결된 허브 정보)
+     * */
     @Override
     @CachePut(
             cacheNames = "hubRouteCache",
@@ -46,6 +49,9 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
         return HubRouteResponse.from(hubRoute);
     }
 
+    /**
+     * 허브 간 이동 정보 업데이트 (소요시간/이동거리)
+     * */
     @Override
     @CachePut(
             cacheNames = "hubRouteCache",
@@ -57,6 +63,10 @@ public class HubRouteCommandServiceImpl implements HubRouteCommandService {
         return HubRouteResponse.from(hubRouteRepository.save(hubRoute));
     }
 
+    /**
+     * 허브 간 이동 정보 삭제
+     * - soft delete 처리
+     * */
     @Override
     @CacheEvict(
             cacheNames = "hubRouteCache",

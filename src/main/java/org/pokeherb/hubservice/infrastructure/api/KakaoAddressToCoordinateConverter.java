@@ -17,6 +17,9 @@ public class KakaoAddressToCoordinateConverter implements AddressToCoordinateCon
 
     private final KakaoClient kakaoClient;
 
+    /**
+     * 문자열 주소를 좌표로 변환
+     * */
     @Override
     public Map<String, Double> convert(String address) {
         String baseUrl = "https://dapi.kakao.com/v2/local/search/address.json?query=" + address;
