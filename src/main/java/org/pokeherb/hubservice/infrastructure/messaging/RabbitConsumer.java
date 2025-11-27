@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -22,13 +23,12 @@ import java.util.Map;
 public class RabbitConsumer {
 
     private static final int MAX_RETRIES = 3;
-    private final RabbitHubProperties rabbitHubProperties;
     private final RabbitTemplate rabbitTemplate;
     private final MessageEventHandler handler;
 
     @RabbitListener(queues = "hub", containerFactory = "rabbitListenerContainerFactory")
     public void handleMessage(Message message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws Exception {
-        String routingKey = message.getMessageProperties().getReceivedRoutingKey();
+        String routingKey = getOriginalRoutingKey(message);
         String payload = new String(message.getBody(), StandardCharsets.UTF_8);
 
         try {
@@ -43,6 +43,8 @@ public class RabbitConsumer {
                     handler.handleOrderCanceledEvent(payload);
                     channel.basicAck(tag, false);
                     break;
+                case "hub.retry.test":
+                    throw new RuntimeException("Hub retry test");
                 default:
                     log.info("알 수 없는 라우팅 키 : {}", routingKey);
                     channel.basicReject(tag, false);
@@ -51,29 +53,77 @@ public class RabbitConsumer {
         } catch (Exception e) {
             int retryCount = getRetryCount(message);
             if (retryCount >= MAX_RETRIES) {
-                channel.basicNack(tag, false, false);
-                log.error("재시도 횟수 제한 초과, 메시지 처리 실패 (원인 : {})", e.getMessage());
-            } else {
-                Map<String, Object> headers = message.getMessageProperties().getHeaders();
-                headers.put("x-retry-count", retryCount + 1);
-                rabbitTemplate.convertAndSend(rabbitHubProperties.exchange(), routingKey, msg -> {
-                    msg.getMessageProperties().getHeaders().putAll(headers);
-                    return msg;
-                });
-                log.info("처리 실패, {}번째 재시도", retryCount);
+                rabbitTemplate.convertAndSend(RabbitConfig.DLX, RabbitConfig.DLQ_ROUTING_KEY, message);
                 channel.basicAck(tag, false);
+                log.error("재시도 횟수 제한 초과, 메시지 처리 실패", e);
+            } else {
+                channel.basicNack(tag, false, false);
+                log.warn("처리 실패, {}번째 재시도", retryCount + 1, e);
             }
         }
     }
 
     /**
-     * RabbitMQ는 NACK 후 requeue될 때마다 'x-death' 헤더에 재시도 횟수 (requeue된 횟수)를 추가
-     * 해당 헤더를 확인하여 몇번째 재시도 중인지 확인 가능
-     * 재시도 횟수가 3회 이상이라면 실패 처리하고 해당 메시지 폐기
-     * */
+     * 메시지의 x-death 헤더에서 현재까지의 재시도 횟수를 추출합니다.
+     */
     private int getRetryCount(Message message) {
         MessageProperties properties = message.getMessageProperties();
         Map<String, Object> headers = properties.getHeaders();
-        return (int) headers.getOrDefault("x-retry-count", 0);
+
+        Object xDeathHeader = headers.get("x-death");
+
+        if (xDeathHeader instanceof List<?> deathList) {
+
+            if (!deathList.isEmpty()) {
+
+                Object lastDeathEntry = deathList.getLast();
+
+                if (lastDeathEntry instanceof Map<?, ?> deathMap) {
+                    Object countObject = deathMap.get("count");
+
+                    // count 필드는 Long 타입으로 들어오는 경우가 많으므로 안전하게 Number로 캐스팅합니다.
+                    if (countObject instanceof Number) {
+                        return ((Number) countObject).intValue();
+                    }
+                }
+            }
+        }
+
+        // x-death 헤더가 없거나 파싱에 실패하면 초기 상태(재시도 횟수 0)로 간주합니다.
+        return 0;
+    }
+
+    /**
+     * 메시지의 Original Routing Key를 반환
+     * - x-death 헤더가 존재하면, 리스트의 마지막 항목(가장 오래된 이벤트)에서 추출
+     */
+    private String getOriginalRoutingKey(Message message) {
+        MessageProperties properties = message.getMessageProperties();
+        Map<String, Object> headers = properties.getHeaders();
+        Object xDeathHeader = headers.get("x-death");
+
+        // x-death 헤더가 존재하고 List 형태인 경우
+        if (xDeathHeader instanceof List<?> deathList) {
+
+            if (!deathList.isEmpty()) {
+                // 리스트의 마지막 항목(가장 오래된/최초 이벤트)을 참조
+                Object firstDeathEntry = deathList.getLast();
+
+                if (firstDeathEntry instanceof Map<?, ?> deathMap) {
+                    // RabbitMQ가 기록한 라우팅 키 리스트
+                    Object routingKeys = deathMap.get("routing-keys");
+
+                    if (routingKeys instanceof List<?> routingKeyList) {
+                        if (!routingKeyList.isEmpty()) {
+                            // 리스트의 첫 번째 키를 반환 (예: "hub.retry.test")
+                            return routingKeyList.getFirst().toString();
+                        }
+                    }
+                }
+            }
+        }
+
+        // x-death 헤더가 없거나 파싱에 실패하면, 현재 메시지가 받은 키를 반환
+        return properties.getReceivedRoutingKey();
     }
 }
