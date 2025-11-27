@@ -23,6 +23,10 @@ public class FinalRouteServiceImpl implements FinalRouteService {
     private final TravelInfoCalculator travelInfoCalculator;
     private final HubRepository hubRepository;
 
+    /**
+     * 출발지 허브부터 목적지 허브까지의 이동 경로를 계산하여 반환
+     * -조회 결과를 캐싱
+     * */
     @Override
     @Cacheable(
             cacheNames = "finalRouteCache",
@@ -43,7 +47,6 @@ public class FinalRouteServiceImpl implements FinalRouteService {
 
     /**
      * 배송 정보 생성 요청 시 포함할 업체까지의 최종 소요시간 및 이동거리 계산
-     * @return FinalRouteResponse 최종 소요시간, 최종 이동거리, 허브 간 이동 순서 정보
      * */
     @Override
     public FinalRouteResponse getDeliveryInfo(List<HubResponse> routeSequence, Map<String, Double> destination) {
