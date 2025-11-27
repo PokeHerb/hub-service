@@ -8,5 +8,5 @@ import java.util.Map;
 public interface TravelInfoCalculator {
     Map<String, Double> calculateTravelInfo(Long startHubId, Long endHubId);
 
-    Map<String, Double> calculateFinalTravelInfo(List<HubResponse> routeSequence, Map<String, String> destination);
+    Map<String, Double> calculateFinalTravelInfo(List<HubResponse> routeSequence, Map<String, Double> destination);
 }

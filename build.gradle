@@ -50,6 +50,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
+    implementation 'org.springframework.retry:spring-retry'
 
     implementation 'com.github.loki4j:loki-logback-appender:2.0.0'
 
@@ -66,7 +67,7 @@ dependencies {
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    //developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'

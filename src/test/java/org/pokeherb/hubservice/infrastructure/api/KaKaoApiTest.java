@@ -45,8 +45,8 @@ public class KaKaoApiTest {
     @DisplayName(value = "카카오 API 다중 경유지 최종 경로 계산 테스트")
     void kakaoApiTravelInfoTest() {
         List<HubResponse> routeSequence = finalRouteService.getFinalHubRoute(1L, 4L, "duration");
-        Map<String, String> destination = Map.of(
-                "latitude", "35.158695", "longitude", "129.160384"
+        Map<String, Double> destination = Map.of(
+                "latitude", 35.158695, "longitude", 129.160384
         );
 
         Map<String, Double> result = calculator.calculateFinalTravelInfo(routeSequence, destination);

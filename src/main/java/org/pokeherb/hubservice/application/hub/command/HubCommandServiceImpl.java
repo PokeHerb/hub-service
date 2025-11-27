@@ -76,12 +76,7 @@ public class HubCommandServiceImpl implements HubCommandService {
             List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(),  hub.getHubId());
             hubRoutes.forEach(hubRoute -> {
                 hubRoute.changeTravelInfo(travelInfoCalculator, checkAccessHub);
-
-                // 수정된 정보 캐시 삭제
-                //cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
             });
-            // 최종 이동 경로 캐시 삭제
-            //cacheService.evictFinalRoute();
         }
         return HubResponse.from(hubRepository.save(hub));
     }
@@ -95,18 +90,11 @@ public class HubCommandServiceImpl implements HubCommandService {
         String username = securityUtils.getCurrentUsername();
         // 허브 삭제
         hub.deleteHub(username, checkAccessHub);
-        // 캐시에서도 허브 삭제
-        //cacheService.evictHub(hubId);
 
         // 삭제된 허브가 포함된 허브 간 이동 정보도 삭제 (비활성화)
         List<HubRoute> hubRoutes = hubRouteRepository.findByStartHubIdOrEndHubId(hub.getHubId(), hub.getHubId());
         hubRoutes.forEach(hubRoute -> {
             hubRoute.deleteHubRoute(username, checkAccessHub);
-            // 캐시에서도 허브 간 이동 정보 삭제
-            //cacheService.evictHubRoute(hubRoute.getStartHubId(), hubRoute.getEndHubId());
         });
-
-        // 최종 이동 경로 캐시 삭제
-        //cacheService.evictFinalRoute();
     }
 }

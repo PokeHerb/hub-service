@@ -46,8 +46,10 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
     }
 
     @Override
-    public Map<String, Double> calculateFinalTravelInfo(List<HubResponse> routeSequence, Map<String, String> destination) {
+    public Map<String, Double> calculateFinalTravelInfo(List<HubResponse> routeSequence, Map<String, Double> destination) {
+        log.info("계산 시작");
         if (routeSequence == null || routeSequence.isEmpty()) {
+            log.error("routeSequence is empty");
             throw new CustomException(ApiErrorCode.INVALID_ARGUMENT_FOR_ROUTE);
         }
         Map<String, Object> body = new HashMap<>();
@@ -55,6 +57,7 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
         Map<String, String> origin = new HashMap<>();
         for (HubResponse hubResponse : routeSequence) {
             if (origin.isEmpty()) {
+                log.error("origin is empty");
                 origin.put("x", hubResponse.longitude().toString());
                 origin.put("y", hubResponse.latitude().toString());
             }
@@ -63,7 +66,9 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
             route.put("y", hubResponse.latitude().toString());
             waypoints.add(route);
         }
-        Map<String, String> destinations = Map.of("x", destination.get("longitude"), "y", destination.get("latitude"));
+        log.info("check");
+        Map<String, String> destinations = Map.of("x", destination.get("longitude").toString(), "y", destination.get("latitude").toString());
+        log.info("destinations {}", destinations);
         body.put("origin", origin);
         body.put("destination", destinations);
         body.put("waypoints", waypoints);
@@ -74,6 +79,7 @@ public class KakaoTravelInfoCalculator implements TravelInfoCalculator {
         if (!docs.isEmpty()) {
             double finalDuration = docs.get("duration").asDouble();
             double finalDistance = docs.get("distance").asDouble();
+            log.info("final duration {}", finalDuration);
             return Map.of("finalDuration", finalDuration, "finalDistance", finalDistance);
         }
         return Map.of();

@@ -19,18 +19,18 @@ public class RabbitProducer {
     private final RabbitTemplate template;
     private final ObjectMapper objectMapper;
 
-    public void publishDeliveryEvent(Object payload, String routingKey) {
-        sendMessage("pokeherb", routingKey, payload);
+    public void publishEvent(Object payload, String routingKey) {
+        sendMessage(routingKey, payload);
     }
 
-    private void sendMessage(String exchange, String routingKey, Object payload) {
+    private void sendMessage(String routingKey, Object payload) {
         try {
             String json = objectMapper.writeValueAsString(payload);
             MessageProperties messageProperties = new MessageProperties();
             messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
             Message message = new Message(json.getBytes(StandardCharsets.UTF_8), messageProperties);
 
-            template.convertAndSend(exchange, routingKey, message);
+            template.convertAndSend("pokeherb", routingKey, message);
         } catch (JsonProcessingException e) {
             throw new CustomException(RabbitErrorCode.RABBIT_JSON_PROCESSING_FAILED);
         }
