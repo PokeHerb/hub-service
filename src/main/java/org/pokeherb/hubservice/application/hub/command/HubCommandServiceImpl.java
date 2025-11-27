@@ -33,6 +33,9 @@ public class HubCommandServiceImpl implements HubCommandService {
     private final TravelInfoCalculator travelInfoCalculator;
     private final SecurityUtils securityUtils;
 
+    /**
+     * 신규 허브 생성
+     * */
     @Override
     @CachePut(cacheNames = "hubCache", key = "#result.hubId")
     public HubResponse createHub(HubCreationRequest request) {
@@ -52,6 +55,10 @@ public class HubCommandServiceImpl implements HubCommandService {
         return HubResponse.from(hub);
     }
 
+    /**
+     * 허브 정보 업데이트
+     * -주소 또는 허브 이름만 변경 가능
+     * */
     @Override
     @CachePut(cacheNames = "hubCache", key = "#result.hubId")
     public HubResponse modifyHub(Long hubId, HubModificationRequest request) {
@@ -81,6 +88,10 @@ public class HubCommandServiceImpl implements HubCommandService {
         return HubResponse.from(hubRepository.save(hub));
     }
 
+    /**
+     * 허브 삭제
+     * - 삭제는 soft delete 방식으로 처리
+     * */
     @Override
     @CacheEvict(cacheNames = "hubCache", key = "#hubId")
     public void deleteHub(Long hubId) {

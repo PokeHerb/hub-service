@@ -36,15 +36,15 @@ public class RabbitConsumer {
 
             switch (routingKey) {
                 case "hub.created.order":
+                    // 주문 생성 이벤트 처리
                     handler.handleOrderCreatedEvent(payload);
                     channel.basicAck(tag, false);
                     break;
                 case "hub.canceled.order":
+                    // 주문 취소 이벤트 처리
                     handler.handleOrderCanceledEvent(payload);
                     channel.basicAck(tag, false);
                     break;
-                case "hub.retry.test":
-                    throw new RuntimeException("Hub retry test");
                 default:
                     log.info("알 수 없는 라우팅 키 : {}", routingKey);
                     channel.basicReject(tag, false);
@@ -64,7 +64,7 @@ public class RabbitConsumer {
     }
 
     /**
-     * 메시지의 x-death 헤더에서 현재까지의 재시도 횟수를 추출합니다.
+     * 메시지의 x-death 헤더에서 현재까지의 재시도 횟수를 추출
      */
     private int getRetryCount(Message message) {
         MessageProperties properties = message.getMessageProperties();
@@ -81,7 +81,6 @@ public class RabbitConsumer {
                 if (lastDeathEntry instanceof Map<?, ?> deathMap) {
                     Object countObject = deathMap.get("count");
 
-                    // count 필드는 Long 타입으로 들어오는 경우가 많으므로 안전하게 Number로 캐스팅합니다.
                     if (countObject instanceof Number) {
                         return ((Number) countObject).intValue();
                     }
@@ -89,7 +88,7 @@ public class RabbitConsumer {
             }
         }
 
-        // x-death 헤더가 없거나 파싱에 실패하면 초기 상태(재시도 횟수 0)로 간주합니다.
+        // x-death 헤더가 없거나 파싱에 실패하면 초기 상태(재시도 횟수 0)로 간주
         return 0;
     }
 
@@ -115,7 +114,7 @@ public class RabbitConsumer {
 
                     if (routingKeys instanceof List<?> routingKeyList) {
                         if (!routingKeyList.isEmpty()) {
-                            // 리스트의 첫 번째 키를 반환 (예: "hub.retry.test")
+                            // 리스트의 첫 번째 키를 반환
                             return routingKeyList.getFirst().toString();
                         }
                     }
